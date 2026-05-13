@@ -109,7 +109,11 @@ Wait for reviewer to complete. Read `review.approved` from the scratchpad.
 
 ## ITERATION — If reviewer rejected
 
-If `review.approved` is `false`, invoke the **engineer** agent again with this prompt:
+If `review.approved` is `false`:
+
+**Before invoking the engineer**, read `implementation.commit_hash` from the scratchpad and save it as `implementation.pre_fix_commit` in the scratchpad. This gives the reviewer a precise diff boundary for the targeted re-review.
+
+Then invoke the **engineer** agent with this prompt:
 
 ```
 Scratchpad: <absolute scratchpad path>
@@ -123,7 +127,31 @@ Critical issues to fix:
 <paste the full critical_issues array from the scratchpad here>
 ```
 
-After engineer finishes, invoke the **reviewer** agent again with the same Phase 3 prompt.
+After the engineer finishes, invoke the **reviewer** agent with this **targeted re-review prompt** (not the full Phase 3 prompt):
+
+```
+Scratchpad: <absolute scratchpad path>
+Branch: <branch_name from scratchpad>
+Output directory: <absolute output_dir from scratchpad>
+Pre-fix commit: <implementation.pre_fix_commit from scratchpad>
+
+This is a targeted re-review after a rejection. Do NOT run the full checklist again.
+
+1. Get the fix diff only:
+   git diff <pre_fix_commit>..<branch_name>
+   This is the only diff to review — code outside this scope was already approved.
+
+2. For each critical issue in review.critical_issues (read from the scratchpad):
+   - Confirm it is fixed correctly.
+   - Check the fix did not introduce a new problem (wrong fallback, off-by-one, new security gap, etc.).
+
+3. Do a quick scan of the fix diff for regressions in already-approved code caused
+   directly by the fix. Only flag something outside the fix scope if it is a critical
+   regression introduced by the fix itself — do not re-litigate approved code.
+
+If all critical issues are resolved → APPROVE and write PR_DESCRIPTION.md and CHANGES_SUMMARY.md.
+If any remain unfixed or the fix introduced a new critical issue → REJECT with the updated critical_issues list.
+```
 
 **Maximum 1 rejection cycle.** If the reviewer rejects a second time, skip to the Final Status and report the outstanding issues — do not loop again.
 
