@@ -21,12 +21,13 @@ The goal is to eliminate the manual back-and-forth of planning, implementing, an
 ```
 .claude/
   agents/
-    tech-lead.md      # Tech Lead agent definition
-    engineer.md       # Engineer agent definition
-    reviewer.md       # Reviewer agent definition
+    tech-lead.md         # Tech Lead agent definition
+    engineer.md          # Engineer agent definition
+    reviewer.md          # Reviewer agent definition
   commands/
-    eng-team.md       # /eng-team orchestrator slash command
-CLAUDE.md             # Codebase guide (fill this in for your repo)
+    eng-team.md          # /eng-team orchestrator slash command
+    eng-team-context.md  # /eng-team-context context generator
+CLAUDE.md.sample         # Template & documentation for CLAUDE.md
 ```
 
 ## How to use
@@ -36,19 +37,37 @@ CLAUDE.md             # Codebase guide (fill this in for your repo)
 - [Claude Code](https://claude.ai/code) installed and authenticated
 - This repo's `.claude/` directory copied into (or checked out at the root of) your own project
 
-### 1. Fill in CLAUDE.md
+### 1. Generate CLAUDE.md with `/eng-team-context`
 
-`CLAUDE.md` is what the agents read instead of exploring your repo from scratch. It should document:
+Instead of manually filling in `CLAUDE.md`, use the context generator to automatically analyze your repo structure:
 
-- Top-level directory layout
-- How to run tests and the linter
-- Code style conventions (indentation, naming, error response format)
-- Git branch and commit message conventions
-- Files and directories that must not be touched
+```bash
+/eng-team-context /path/to/your/repo
+```
 
-A complete `CLAUDE.md` template is already in this repo — fill it in for your project. Accurate documentation here cuts agent run time by 30–50%.
+This command will:
+- Analyze your directory structure, language, frameworks, and tooling
+- Detect test frameworks, linters, entry points, and external dependencies
+- Generate a high-quality `CLAUDE.md` in your target repo that matches the template format
 
-### 2. Run the slash command
+**Example:**
+```
+/eng-team-context ./
+```
+
+The generated `CLAUDE.md` is optimized for the eng-team workflow and can be re-run anytime your repo structure or tooling changes to keep it up-to-date.
+
+### 2. (Optional) Customize CLAUDE.md
+
+If needed, manually refine the generated `CLAUDE.md`:
+- Add project overview details
+- Clarify architecture diagrams or patterns
+- Document any team-specific conventions
+- List files or directories that should never be touched
+
+For reference, see `CLAUDE.md.sample` which contains the template structure and documentation.
+
+### 3. Run the eng-team workflow
 
 Open Claude Code in your project and type:
 
@@ -66,7 +85,7 @@ Open Claude Code in your project and type:
 /eng-team Refactor the auth middleware to extract token validation into a standalone utility so it can be reused in the webhook handler
 ```
 
-### 3. Wait for the pipeline
+### 4. Wait for the pipeline
 
 The orchestrator runs three phases automatically:
 
@@ -97,7 +116,7 @@ When done, the orchestrator prints a summary:
 ═══════════════════════════════════════════════
 ```
 
-### 4. Push and open the PR
+### 5. Push and open the PR
 
 ```bash
 git push origin <branch_name>
@@ -116,6 +135,26 @@ Then open a PR and paste the contents of `PR_DESCRIPTION.md` as the description.
 ## Tips
 
 - **Be specific in your PRD.** "Add rate limiting" is harder to act on than "Add a sliding-window rate limiter to the cart API, max 100 req/min per user, backed by Redis, fail-open on Redis errors." More detail in → less ambiguity out.
-- **Keep CLAUDE.md accurate.** If the test command is wrong, the engineer will commit with failing tests. Update it whenever you change the project structure or tooling.
+- **Keep CLAUDE.md up-to-date.** Whenever your project structure, dependencies, or tooling changes, re-run `/eng-team-context` to regenerate CLAUDE.md. A fresh, accurate CLAUDE.md cuts agent run time by 30–50%.
 - **Review the spec before the engineer runs.** The orchestrator runs the full pipeline automatically, but you can pause after Phase 1 to read the Technical Spec in the scratchpad JSON and catch misunderstandings before any code is written.
 - **The reviewer is a quality gate, not a rubber stamp.** It checks correctness, security, and performance against a concrete checklist. If it rejects, read `critical_issues` in the scratchpad — those are real problems to fix.
+
+## Workflow summary
+
+```
+1. Add eng-team to your repo:
+   → Copy .claude/ directory to your project root
+
+2. Generate CLAUDE.md:
+   → /eng-team-context ./
+
+3. Run eng-team workflow:
+   → /eng-team <your PRD>
+
+4. Review & merge:
+   → Push branch, open PR, paste PR_DESCRIPTION.md
+
+5. (Repeat) Keep CLAUDE.md fresh:
+   → /eng-team-context ./ (whenever structure changes)
+   → /eng-team <next PRD>
+```
