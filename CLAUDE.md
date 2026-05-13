@@ -1,0 +1,235 @@
+# CLAUDE.md — Guide & Template
+
+`CLAUDE.md` is the single most important file for Engineering AI Team performance.
+Every agent reads it at the start of every run. A well-written `CLAUDE.md` eliminates
+the codebase discovery phase entirely, cutting run time by 30–50%.
+
+Place this file at the **root of your repository** and keep it accurate.
+
+---
+
+## Why this file matters
+
+The **Tech Lead** agent reads `CLAUDE.md` before doing anything else. Instead of
+spending turns exploring the repo with `Glob` and `Grep`, it arrives already knowing:
+- Where things live
+- How code is structured
+- How to run tests and the linter
+- What conventions to follow
+
+The **Engineer** uses it to match code style without reading adjacent files.
+The **Reviewer** uses it to check that commits follow the right naming convention.
+
+A missing or stale `CLAUDE.md` forces agents to re-discover everything from scratch on
+every run. Keep it updated whenever the architecture, tooling, or conventions change.
+
+---
+
+## Template
+
+Copy everything below this line into your repo's `CLAUDE.md` and fill it in.
+
+---
+
+```markdown
+# CLAUDE.md
+
+## Project overview
+<!-- One paragraph: what this service/app does and its role in the system. -->
+<!-- Example: "Order service — manages the full order lifecycle from cart checkout
+     to fulfilment. Owned by the Commerce team." -->
+
+
+## Architecture
+
+<!-- Describe the top-level directory structure. List every directory that agents
+     might need to touch, and what lives in it. Be specific. -->
+
+```
+src/
+  routes/        # ...
+  controllers/   # ...
+  services/      # ...
+  middleware/     # ...
+  models/        # ...
+  config/        # ...
+  utils/         # ...
+
+tests/           # mirrors src/ structure
+```
+
+**Entry point:** `src/index.js` (or `main.py`, `cmd/server/main.go`, etc.)
+**Router/handler registration:** `src/routes/index.js`
+**Middleware registration:** `src/app.js`
+
+
+## Language & runtime
+
+<!-- Specify the exact language, version, and module system in use. -->
+<!-- Examples:
+     - Node.js 20, CommonJS (require/module.exports)
+     - Node.js 20, ESM (import/export)
+     - Python 3.12, pip + virtualenv
+     - Go 1.22, modules
+     - Java 21, Maven
+-->
+
+
+## Code style & conventions
+
+### Formatting
+<!-- Indentation, line length, quote style, semicolons — whatever your linter enforces. -->
+
+### Naming
+<!-- camelCase vs snake_case, PascalCase for classes, file naming pattern, etc. -->
+
+### Import / dependency order
+<!-- Example: built-ins → third-party → local, alphabetical within groups -->
+
+### Error response format
+<!-- What does a 4xx or 5xx response body look like? -->
+<!-- Example: { "error": "<message>", "code": "<ERROR_CODE>" } -->
+
+### Middleware pattern
+<!-- Show a minimal example of how a middleware is written and registered.
+     Agents will copy this pattern exactly. -->
+
+```js
+// Example (adapt to your language/framework)
+function myMiddleware(req, res, next) {
+  // logic
+  next();
+}
+module.exports = myMiddleware;
+```
+
+### Config / environment variable pattern
+<!-- How are config values defined and accessed? -->
+<!-- Example: all in config/settings.js, read from process.env with defaults -->
+
+```js
+// Example
+module.exports = {
+  MY_SETTING: process.env.MY_SETTING || 'default_value',
+};
+```
+
+
+## Git conventions
+
+### Branch naming
+```
+feat/<short-description>      # new feature
+fix/<short-description>       # bug fix
+refactor/<short-description>  # no behaviour change
+chore/<short-description>     # tooling, deps, config
+```
+
+### Commit message format
+<!-- Conventional commits, or your team's format. Show a real example. -->
+```
+feat(scope): short imperative description
+
+- bullet for each logical change
+- keep each bullet under 72 chars
+```
+
+
+## How to run the project
+
+```bash
+# Install dependencies
+<command>
+
+# Start (development, with hot reload)
+<command>
+
+# Start (production)
+<command>
+```
+
+
+## How to run tests
+
+```bash
+# Full test suite
+<command>
+
+# Single file
+<command> tests/path/to/file.test.js
+
+# With coverage
+<command>
+```
+
+**Test framework:** Jest / pytest / Go test / JUnit / etc.
+**Test file location:** `tests/` mirroring `src/`, named `*.test.js` / `*_test.py` / etc.
+**Mocking approach:** jest.mock() / unittest.mock / etc. — always mock external services
+
+
+## How to run the linter / formatter
+
+```bash
+# Check
+<command>
+
+# Auto-fix
+<command>
+```
+
+
+## External dependencies
+
+<!-- List services the app depends on, with local setup instructions. -->
+<!-- Agents need to know what to mock in tests and what to start locally. -->
+
+| Service     | Purpose              | Local setup                  |
+|-------------|----------------------|------------------------------|
+| Redis       | Caching / rate limit | `docker-compose up redis`    |
+| PostgreSQL  | Primary database     | `docker-compose up db`       |
+| <Service>   | <Purpose>            | <How to start locally>       |
+
+
+## Key files reference
+
+<!-- List the files agents most commonly need to touch or read for context.
+     The more specific this is, the fewer Glob/Grep turns agents need. -->
+
+| File                        | Purpose                                      |
+|-----------------------------|----------------------------------------------|
+| `src/app.js`                | App bootstrap, global middleware, router mount |
+| `src/routes/index.js`       | Central router — all routes registered here  |
+| `src/middleware/index.js`   | Middleware registration order                |
+| `config/settings.js`        | All config values with defaults              |
+| `docker-compose.yml`        | Local service dependencies                   |
+
+
+## Do not touch
+
+<!-- List directories or files that should never be modified by agents. -->
+
+- `src/legacy/` — deprecated, do not modify
+- `migrations/` — managed by a separate process
+- Any file with `// DO NOT EDIT` at the top
+```
+
+---
+
+## Tips for a high-quality CLAUDE.md
+
+**Be specific about file paths.** "Middleware lives in `src/middleware/`" is more
+useful than "we use a middleware layer." Agents will `Read` and `Grep` specific
+paths — vague descriptions force them to discover the structure themselves.
+
+**Show, don't tell, for patterns.** A 5-line code snippet of your middleware pattern
+is worth more than three paragraphs describing it. Agents reproduce what they see.
+
+**Keep the test section accurate.** If the test command is wrong, the Engineer
+commits with failing tests. Verify the commands yourself before committing this file.
+
+**Update it when things change.** A stale `CLAUDE.md` is worse than none — agents
+will confidently follow outdated instructions. Treat it like a README: update it in
+the same PR as the structural change it describes.
+
+**List what NOT to touch.** This prevents agents from accidentally editing
+generated files, legacy code, or migration scripts.
