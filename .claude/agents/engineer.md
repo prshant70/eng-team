@@ -27,7 +27,7 @@ Also read `CLAUDE.md` for code style conventions and how to run tests.
 
 ### Step 2 — Set up the branch
 ```bash
-git checkout -b <branch_name>
+git checkout -b <branch_name> 2>/dev/null || git checkout <branch_name>
 ```
 
 ### Step 3 — Implement and test together
@@ -84,6 +84,21 @@ Update the scratchpad JSON under the key `"implementation"`:
 ```
 
 Set `"phase": "implementation_complete"` at the top level of the scratchpad.
+
+## Fix mode — when invoked to address reviewer critical issues
+
+If your instructions contain a `Critical issues to fix:` section, you are in **fix mode**. Skip Steps 1–2 (branch already exists, spec already implemented). Instead:
+
+1. Read only the files referenced in the critical issues list
+2. Make the minimum targeted change that resolves each issue — do not refactor surrounding code
+3. Re-run tests for the affected files, then the full test suite
+4. Fix any failures, then run the linter
+5. Commit only the changed files: `fix: address reviewer critical issues`
+6. Update the scratchpad `implementation` key with the new commit hash
+
+Do not re-read the full spec or re-implement unrelated files.
+
+---
 
 ## Hard rules
 - Never modify files outside the scope of `files_to_modify` and `files_to_create` in the spec.
