@@ -1,0 +1,31 @@
+.claude/agents/engineer.md
+  s_b955d94900e20a::t_bd2403058be724 30
+  s_b955d94900e20a::t_3d59e3eaa3a216 88-102
+.claude/agents/reviewer.md
+  s_b955d94900e20a::t_306521555fad10 97,105,119,126,129,132
+  s_b955d94900e20a::t_3b64d202cd5bbf 146-149
+  s_b955d94900e20a::t_3cab36ce450865 14,21,33-46,49-51,55-56,59-61,64-66,69-70
+.claude/agents/tech-lead.md
+  s_b955d94900e20a::t_3a7b5e89e94a0d 37,41-42,47-48,54-55,58-59,61-62,64
+  s_b955d94900e20a::t_9aff351c7b17bd 4
+.claude/commands/eng-team.md
+  s_b955d94900e20a::t_39859a605077bd 166,172-174,186-206
+  s_b955d94900e20a::t_e50275621309a9 98,101
+  s_b955d94900e20a::t_5e569a0768a3f5 136,158
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "c0a2f5fa1d695b16cc148b58a13aaee2d05ab452",
+  "prompts": {},
+  "sessions": {
+    "s_b955d94900e20a": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "ac2d76b2-3004-4ed8-892a-448d6996a70c",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Prashant Mishra <prashantmishra@L9KXW927K6local-571.local>"
+    }
+  }
+}
