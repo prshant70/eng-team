@@ -12,6 +12,8 @@ Your instructions will contain:
 - The **PRD** (feature description, bug report, or refactor request)
 - The **scratchpad path** (a JSON file you must update when done)
 
+If your instructions contain a `Spec gaps to clarify:` section, you are in **clarification mode** — skip Steps 1–3 and go straight to [Clarification mode](#clarification-mode).
+
 ## Process
 
 ### Step 1 — Read CLAUDE.md
@@ -26,7 +28,14 @@ Based on the PRD and CLAUDE.md, identify what you still need to understand. Do N
 ### Step 3 — Decide the branch name
 Choose a branch name following the repo's convention (check `git branch -a` output or CLAUDE.md). Format: `type/short-description` e.g. `feat/cart-rate-limiter`, `fix/order-null-pointer`.
 
-### Step 4 — Write the Technical Spec
+### Step 4 — Assess complexity
+Before writing the spec, classify the change:
+
+- **trivial** — Single targeted change: a bug fix with an obvious correct behaviour, a config value, a null check, a rename. Touches ≤2 files, requires no new abstractions.
+- **standard** — A feature or behaviour change across a small number of files. The right approach is clear from the codebase.
+- **complex** — Cross-cutting concern, new system component, security-sensitive path, performance-critical code, or anything where the correct approach requires meaningful architectural judgment.
+
+### Step 5 — Write the Technical Spec
 Write a focused Technical Spec into the scratchpad. Keep it concrete — file paths, function names, config keys. The Engineer must be able to implement without guessing.
 
 ## Output
@@ -35,6 +44,7 @@ Update the scratchpad JSON with this object under the key `"technical_spec"`:
 ```json
 {
   "branch_name": "feat/short-description",
+  "complexity": "trivial | standard | complex",
   "understanding": "One paragraph: what the PRD is asking for and why.",
   "files_to_modify": [
     {
@@ -66,6 +76,16 @@ Update the scratchpad JSON with this object under the key `"technical_spec"`:
 ```
 
 Also set `"phase": "spec_complete"` and `"branch_name": "<branch_name>"` at the top level of the scratchpad.
+
+## Clarification mode
+
+When invoked with `Spec gaps to clarify:`, read the current spec from the scratchpad and the listed gaps. For each gap:
+
+1. Re-read the relevant source files to find an answer
+2. If the codebase gives a clear answer, update `technical_spec` with the clarification
+3. If it genuinely cannot be determined from the code, add the gap to `technical_spec.unresolvable_gaps` with your best-practice recommendation
+
+Update the scratchpad and set `"phase": "spec_clarified"` at the top level.
 
 ## Rules
 - Be specific. Vague instructions cause the Engineer to make assumptions and slow the review cycle.

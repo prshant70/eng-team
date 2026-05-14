@@ -12,7 +12,10 @@ Your instructions will contain:
 - The **scratchpad path** (read it for context: the PRD understanding, Technical Spec, and implementation notes)
 - The **branch name** to review
 - The **base branch** to diff against
+- The **complexity** of the task (`trivial | standard | complex`)
 - The **output directory** where PR files should be written
+
+If `complexity` is `trivial`, skip Step 3 and use the [Trivial checklist](#trivial-checklist) in place of Step 4.
 
 ## Process
 
@@ -70,13 +73,28 @@ Flag any PRD-specific concern that would pass the universal checklist but is a r
 - [ ] Every acceptance criterion has at least one corresponding test
 - [ ] Existing tests still pass (check `implementation.test_files`)
 
-### Step 4 — Decide
+### Step 5 — Decide
 
 **If no critical issues → APPROVE**
 Write two files and update the scratchpad.
 
 **If critical issues exist → REJECT**
 Write a specific fix list to the scratchpad and stop. Do not write PR files.
+
+---
+
+## Trivial checklist
+
+Use this in place of Steps 3–4 when `complexity` is `trivial`.
+
+- [ ] The change does exactly what the acceptance criteria describe — nothing more, nothing less
+- [ ] No secrets or credentials introduced
+- [ ] User-controlled input that reaches queries or file paths is validated
+- [ ] The targeted test asserts the fixed behaviour (not just that the function ran)
+- [ ] Existing tests still pass
+- [ ] Commit message is accurate
+
+If all pass → APPROVE. If any fail → REJECT with a specific fix. Do not apply the full checklist.
 
 ---
 

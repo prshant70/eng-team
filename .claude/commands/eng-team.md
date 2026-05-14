@@ -66,6 +66,30 @@ Wait for tech-lead to complete. Read the scratchpad and confirm `technical_spec`
 
 ---
 
+## PHASE 1.5 — Spec clarification (conditional)
+
+Read `technical_spec.complexity` and note it — you will pass it to the engineer and reviewer.
+
+After the engineer runs (Phase 2), check if `phase` is `"spec_needs_clarification"`. If it is, run this phase **before** looping back to Phase 2:
+
+Invoke the **tech-lead** agent with this prompt:
+
+```
+Scratchpad: <absolute scratchpad path>
+
+Spec gaps to clarify:
+<paste the full spec_gaps array from implementation in the scratchpad>
+
+Read the relevant source files and update the technical_spec in the scratchpad to resolve each gap.
+Set phase to "spec_clarified" when done.
+```
+
+Wait for tech-lead to complete. Read the updated spec, then re-invoke the engineer (Phase 2 prompt below) with the clarified spec.
+
+**Maximum 1 clarification cycle.** If the engineer flags gaps a second time, proceed with implementation — the engineer must document assumptions in `implementation.notes` instead.
+
+---
+
 ## PHASE 2 — Implementation
 
 Invoke the **engineer** agent with this prompt:
@@ -73,18 +97,22 @@ Invoke the **engineer** agent with this prompt:
 ```
 Scratchpad: <absolute scratchpad path>
 Branch: <branch_name from scratchpad>
+Complexity: <technical_spec.complexity from scratchpad>
 
 Read the scratchpad for the Technical Spec, then:
-1. Create the branch: git checkout -b <branch_name>
-2. Implement all changes from technical_spec.files_to_create and files_to_modify
-3. Write tests inline as you go
-4. Run the full test suite and fix any failures
-5. Run the linter and fix all errors
-6. Commit with a conventional commit message
-7. Update the scratchpad "implementation" key with the commit hash and file list
+1. Check for spec gaps before implementing — if any exist, write them to the scratchpad and stop
+2. Create the branch: git checkout -b <branch_name> 2>/dev/null || git checkout <branch_name>
+3. Implement all changes from technical_spec.files_to_create and files_to_modify
+4. Write tests inline as you go
+5. Run the full test suite and fix any failures
+6. Run the linter and fix all errors
+7. Commit with a conventional commit message
+8. Update the scratchpad "implementation" key with the commit hash and file list
 ```
 
-Wait for engineer to complete. Confirm `implementation.commit_hash` is set in the scratchpad before continuing.
+Wait for engineer to complete. Read the scratchpad:
+- If `phase` is `"spec_needs_clarification"` → run Phase 1.5
+- Otherwise confirm `implementation.commit_hash` is set before continuing
 
 ---
 
@@ -96,6 +124,7 @@ Invoke the **reviewer** agent with this prompt:
 Scratchpad: <absolute scratchpad path>
 Branch: <branch_name from scratchpad>
 Base branch: <base_branch from scratchpad>
+Complexity: <technical_spec.complexity from scratchpad>
 Output directory: <absolute output_dir from scratchpad>
 
 Review the diff with: git diff <base_branch>...<branch_name>
@@ -134,6 +163,7 @@ After the engineer finishes, invoke the **reviewer** agent with this **targeted 
 Scratchpad: <absolute scratchpad path>
 Branch: <branch_name from scratchpad>
 Base branch: <base_branch from scratchpad>
+Complexity: <technical_spec.complexity from scratchpad>
 Output directory: <absolute output_dir from scratchpad>
 Pre-fix commit: <implementation.pre_fix_commit from scratchpad>
 
