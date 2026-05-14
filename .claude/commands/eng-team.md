@@ -95,9 +95,10 @@ Invoke the **reviewer** agent with this prompt:
 ```
 Scratchpad: <absolute scratchpad path>
 Branch: <branch_name from scratchpad>
+Base branch: <base_branch from scratchpad>
 Output directory: <absolute output_dir from scratchpad>
 
-Review the diff with: git diff main...<branch_name>
+Review the diff with: git diff <base_branch>...<branch_name>
 Check for correctness, security, performance, and scalability issues.
 If approved: write PR_DESCRIPTION.md and CHANGES_SUMMARY.md to the output directory.
 If rejected: write specific fix instructions to review.critical_issues in the scratchpad.
@@ -132,6 +133,7 @@ After the engineer finishes, invoke the **reviewer** agent with this **targeted 
 ```
 Scratchpad: <absolute scratchpad path>
 Branch: <branch_name from scratchpad>
+Base branch: <base_branch from scratchpad>
 Output directory: <absolute output_dir from scratchpad>
 Pre-fix commit: <implementation.pre_fix_commit from scratchpad>
 
@@ -153,7 +155,7 @@ If all critical issues are resolved → APPROVE and write PR_DESCRIPTION.md and 
 If any remain unfixed or the fix introduced a new critical issue → REJECT with the updated critical_issues list.
 ```
 
-**Maximum 1 rejection cycle.** If the reviewer rejects a second time, skip to the Final Status and report the outstanding issues — do not loop again.
+**Maximum 1 rejection cycle.** If the reviewer rejects a second time, do not loop again — the task needs human review. In the Final Status, clearly surface the unresolved issues so a human engineer can take over.
 
 ---
 
@@ -161,14 +163,15 @@ If any remain unfixed or the fix introduced a new critical issue → REJECT with
 
 Read the scratchpad one last time. Print this summary:
 
+**If approved:**
 ```
 ═══════════════════════════════════════════════
   Engineering AI Team — Done
 ═══════════════════════════════════════════════
 
-  Task:     $ARGUMENTS
-  Branch:   <branch_name>
-  Review:   ✓ Approved  OR  ✗ Not approved — <reason>
+  Task:    $ARGUMENTS
+  Branch:  <branch_name>
+  Review:  ✓ Approved
 
   Output files:
   → <review.pr_path>
@@ -178,5 +181,28 @@ Read the scratchpad one last time. Print this summary:
   Next steps:
   → Push branch:  git push origin <branch_name>
   → Open PR and paste the contents of PR_DESCRIPTION.md
+═══════════════════════════════════════════════
+```
+
+**If not approved after the full rejection cycle:**
+```
+═══════════════════════════════════════════════
+  Engineering AI Team — Needs human review
+═══════════════════════════════════════════════
+
+  Task:    $ARGUMENTS
+  Branch:  <branch_name>
+  Review:  ✗ Not approved — automated fix cycle exhausted
+
+  Unresolved issues (from scratchpad review.critical_issues):
+  → <issue 1: file, line, description>
+  → <issue 2: file, line, description>
+  ...
+
+  The branch has been committed and is ready for a human engineer to
+  resolve the above issues before merging.
+
+  Scratchpad for full context:
+  → <scratchpad_path>
 ═══════════════════════════════════════════════
 ```

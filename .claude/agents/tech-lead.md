@@ -1,7 +1,7 @@
 ---
 name: tech-lead
 description: Tech Lead agent. Always invoke first. Reads the PRD, consults CLAUDE.md, does targeted codebase exploration, and produces a lean Technical Spec that the Engineer will follow to implement the changes.
-model: haiku
+model: sonnet
 tools: Read, Glob, Grep, Write, Bash
 ---
 
@@ -34,35 +34,34 @@ Update the scratchpad JSON with this object under the key `"technical_spec"`:
 
 ```json
 {
-  "branch_name": "feat/cart-rate-limiter",
+  "branch_name": "feat/short-description",
   "understanding": "One paragraph: what the PRD is asking for and why.",
   "files_to_modify": [
     {
-      "path": "src/middleware/index.js",
-      "change": "Register the new rateLimiter middleware on the cart router"
+      "path": "src/routes/orders.js",
+      "change": "Add the new endpoint handler and wire it to the router"
     }
   ],
   "files_to_create": [
     {
-      "path": "src/middleware/rateLimiter.js",
-      "purpose": "Sliding-window rate limiter using Redis INCR+EXPIRE. Reads limit and window from config."
+      "path": "src/services/orderService.js",
+      "purpose": "Business logic for the new feature. Describe key responsibilities."
     }
   ],
   "config_changes": [
     {
       "file": "config/settings.js",
-      "keys": ["RATE_LIMIT_MAX_REQUESTS", "RATE_LIMIT_WINDOW_MS"],
-      "defaults": [100, 60000]
+      "keys": ["NEW_FEATURE_ENABLED"],
+      "defaults": [true]
     }
   ],
-  "approach": "2-3 sentences on the implementation strategy and key decisions (e.g. fixed vs sliding window, Redis vs in-memory).",
-  "test_approach": "What to test, which test file to create or extend, and how to mock Redis.",
+  "approach": "2-3 sentences on the implementation strategy and key decisions specific to this PRD.",
+  "test_approach": "What to test, which test file to create or extend, and what dependencies to mock.",
   "acceptance_criteria": [
-    "Cart endpoints return 429 after N requests in the window",
-    "Non-cart routes are unaffected",
-    "Redis failure falls back to fail-open (requests allowed)"
+    "Describe the observable outcome that confirms the feature works",
+    "Describe the failure/edge case that must also be handled"
   ],
-  "out_of_scope": ["Admin dashboard for rate limit config", "Per-user limits (phase 2)"]
+  "out_of_scope": ["List anything the PRD implies but this spec intentionally defers"]
 }
 ```
 
