@@ -1,0 +1,27 @@
+.claude/agents/devops.md
+  s_8d1d3509a88d77::t_4c476b821179c3 1-413
+CLAUDE.md.sample
+  s_8d1d3509a88d77::t_16c158be9dc348 214-241
+.claude/commands/devops.md
+  s_8d1d3509a88d77::t_aaff4975bf8506 1-166
+.claude/commands/eng-team-context.md
+  s_8d1d3509a88d77::t_d6688c4b123553 171-210
+  s_8d1d3509a88d77::t_286850f34d7f2b 292-294
+  s_8d1d3509a88d77::t_0b5439e4c12ab4 258-266
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "1da13db5d162981330297e17d9e645959382a7f7",
+  "prompts": {},
+  "sessions": {
+    "s_8d1d3509a88d77": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "e96efe97-fa1c-42e5-867f-83177859a3e2",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Prashant Mishra <prashantmishra@L9KXW927K6local-571.local>"
+    }
+  }
+}
