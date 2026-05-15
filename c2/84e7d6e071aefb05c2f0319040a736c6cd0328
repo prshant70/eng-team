@@ -1,0 +1,22 @@
+README.md
+  s_8d1d3509a88d77::t_20f6e4771e20a0 3,7,12,14
+  s_8d1d3509a88d77::t_b0f99f17cba6d7 28,32-33
+  s_8d1d3509a88d77::t_25408202f2228f 177,186-190
+  s_8d1d3509a88d77::t_ddb74c96ca562d 130-155
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "c284e7d6e071aefb05c2f0319040a736c6cd0328",
+  "prompts": {},
+  "sessions": {
+    "s_8d1d3509a88d77": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "e96efe97-fa1c-42e5-867f-83177859a3e2",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Prashant Mishra <prashantmishra@L9KXW927K6local-571.local>"
+    }
+  }
+}
