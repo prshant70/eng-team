@@ -211,6 +211,34 @@ feat(scope): short imperative description
 - `src/legacy/` — deprecated, do not modify
 - `migrations/` — managed by a separate process
 - Any file with `// DO NOT EDIT` at the top
+
+
+## Deployment
+
+<!-- Required by the DevOps agent (/devops deploy|setup <environment>).
+     Keep this section accurate — the agent reads it before every run. -->
+
+docker_compose_file: docker-compose.yml
+dockerfile: Dockerfile
+health_check_endpoint: /health   # path the agent curls after deploy
+
+environments:
+  local:
+    port: 3000                   # port exposed by docker-compose for health checks
+
+  staging:
+    aws_region: us-east-1
+    ecr_registry: <account_id>.dkr.ecr.us-east-1.amazonaws.com
+    ecs_cluster: <app-name>-staging
+    ecs_service: <app-name>-staging-svc
+    alb_url: https://staging.<your-domain>.com   # optional; used for post-deploy health check
+
+  prod:
+    aws_region: us-east-1
+    ecr_registry: <account_id>.dkr.ecr.us-east-1.amazonaws.com
+    ecs_cluster: <app-name>-prod
+    ecs_service: <app-name>-prod-svc
+    alb_url: https://<your-domain>.com           # optional; used for post-deploy health check
 ```
 
 ---

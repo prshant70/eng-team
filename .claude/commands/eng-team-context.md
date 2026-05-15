@@ -168,6 +168,46 @@ fi
 
 ---
 
+## STEP 7.5 — Detect Deployment Configuration
+
+```bash
+# Docker Compose file
+echo "=== Docker Compose ==="
+ls docker-compose*.yml docker-compose*.yaml 2>/dev/null || echo "none found"
+
+# Dockerfile
+echo "=== Dockerfile ==="
+ls Dockerfile* 2>/dev/null || echo "none found"
+
+# Exposed ports from docker-compose
+echo "=== Exposed ports ==="
+grep -E "^\s+ports:" -A 5 docker-compose.yml docker-compose.yaml 2>/dev/null | head -20
+
+# Health check in docker-compose
+echo "=== Health check (docker-compose) ==="
+grep -E "healthcheck|/health|/healthz" docker-compose.yml docker-compose.yaml 2>/dev/null | head -10
+
+# Health endpoint in source code (look for common route patterns)
+echo "=== Health endpoint (source) ==="
+grep -rE '"(/health|/healthz|/ping|/ready)"' src/ app/ lib/ . \
+  --include="*.js" --include="*.ts" --include="*.py" --include="*.go" \
+  2>/dev/null | head -5
+
+# AWS config hints in env files
+echo "=== AWS / deployment env vars ==="
+grep -E "^(AWS_|ECR_|ECS_|REGION|CLUSTER|SERVICE)" .env.example .env.sample 2>/dev/null | head -20
+
+# Existing IaC
+echo "=== Infrastructure as Code ==="
+find . -maxdepth 4 \( -name "*.tf" -o -name "cdk.json" -o -name "serverless.yml" -o -name "*.cfn.yml" \) 2>/dev/null | head -10
+
+# CI/CD workflows
+echo "=== CI/CD ==="
+ls .github/workflows/ 2>/dev/null || echo "no GitHub Actions workflows found"
+```
+
+---
+
 ## STEP 8 — Analyze Code Conventions
 
 Sample the codebase to detect:
@@ -215,6 +255,15 @@ Now use all the collected information to write a comprehensive CLAUDE.md file. U
 - External dependencies (from docker-compose or requirements)
 - Key files reference (entry points, config, router, etc. found in STEP 4)
 - Do not touch (generated files, migrations, node_modules, etc.)
+- Deployment (from STEP 7.5 — fill in detected values; use placeholders for anything not found)
+
+For the `## Deployment` section, populate it using what you detected in STEP 7.5:
+- `docker_compose_file`: use the detected filename (e.g. `docker-compose.yml`), or `docker-compose.yml` as default
+- `dockerfile`: use the detected filename, or `Dockerfile` as default
+- `health_check_endpoint`: use the route found in source or healthcheck config; default to `/health`
+- `environments.local.port`: use the first host port from docker-compose `ports:` mapping (e.g. `"3000:3000"` → `3000`); default to `3000`
+- `environments.staging` and `environments.prod`: if AWS env vars were found in `.env.example` (ECR_REGISTRY, ECS_CLUSTER, etc.) use those values; otherwise insert angle-bracket placeholders (e.g. `<account_id>.dkr.ecr.us-east-1.amazonaws.com`) so the user knows exactly what to fill in
+- If IaC was found in STEP 7.5, add a comment in the section noting its location
 
 Write the generated CLAUDE.md to: **$ARGUMENTS/CLAUDE.md**
 
@@ -240,5 +289,8 @@ fi
 - Test framework: [from STEP 5]
 - Linter/formatter: [from STEP 6]
 - Entry point: [from STEP 4]
+- Docker Compose: [filename detected or "not found"]
+- Health endpoint: [detected value or "/health (default)"]
+- Deployment section: [filled / placeholders inserted — list any values that need manual completion]
 
 The generated CLAUDE.md is now ready for use with `/eng-team` commands. Re-run this command anytime your repo structure or tooling changes.
