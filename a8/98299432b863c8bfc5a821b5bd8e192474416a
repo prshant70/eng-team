@@ -1,0 +1,25 @@
+.claude/agents/devops.md
+  s_8d1d3509a88d77::t_231544486c4f49 3,8,17,19,21,23,25,28,30,34-36,42-51,55-65,69-77,81-96,100,107-110,113,117,120,122,125,128,136,138-140,146,149-151
+README.md
+  s_8d1d3509a88d77::t_b83f9a61a25113 12
+  s_8d1d3509a88d77::t_0e390c80af7bbb 177-178
+  s_8d1d3509a88d77::t_bb0309aedfa627 130,132,135,138,140-141,143,145
+.claude/commands/devops.md
+  s_8d1d3509a88d77::t_321c78eec58876 2-3,6,12,14,16,19,21,23,46-47,56-57,80,84,97-99,123-125,136
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.9",
+  "base_commit_sha": "a898299432b863c8bfc5a821b5bd8e192474416a",
+  "prompts": {},
+  "sessions": {
+    "s_8d1d3509a88d77": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "e96efe97-fa1c-42e5-867f-83177859a3e2",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Prashant Mishra <prashantmishra@L9KXW927K6local-594.local>"
+    }
+  }
+}
