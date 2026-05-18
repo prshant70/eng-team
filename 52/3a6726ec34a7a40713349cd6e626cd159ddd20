@@ -1,0 +1,22 @@
+CLAUDE.md.sample
+  s_8d1d3509a88d77::t_2591bcb8aa40f3 218,229-230
+.claude/commands/eng-team-context.md
+  s_8d1d3509a88d77::t_bed9fc7789eab2 299
+  s_8d1d3509a88d77::t_8cc3d5e6bb0683 265-271
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.9",
+  "base_commit_sha": "523a6726ec34a7a40713349cd6e626cd159ddd20",
+  "prompts": {},
+  "sessions": {
+    "s_8d1d3509a88d77": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "e96efe97-fa1c-42e5-867f-83177859a3e2",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Prashant Mishra <prashantmishra@L9KXW927K6local-594.local>"
+    }
+  }
+}
