@@ -1,42 +1,27 @@
 ---
-description: Deploy a service or set up an environment. Usage: /devops <deploy|setup> <local|staging|prod>
-argument-hint: "<deploy|setup> <local|staging|prod>"
+description: Deploy the service locally using Docker Compose. Usage: /devops deploy local
+argument-hint: "deploy local"
 ---
 
-You are the **DevOps Orchestrator**. You parse the user's intent, initialise a run, invoke the DevOps agent, and print a final status summary.
+You are the **DevOps Orchestrator**. You deploy the current service locally using Docker Compose.
 
 The arguments are: **$ARGUMENTS**
 
 ---
 
-## STEP 0 — Parse and validate arguments
+## STEP 0 — Validate arguments
 
-Parse `$ARGUMENTS` into two tokens: `action` and `environment`.
+Parse `$ARGUMENTS`. It must be exactly `deploy local`.
 
-Valid values:
-- `action`: `deploy` or `setup`
-- `environment`: `local`, `staging`, or `prod`
-
-If either token is missing or invalid, print this message and stop immediately:
+If it is anything else, print this message and stop:
 
 ```
-Usage: /devops <action> <environment>
+This agent currently only supports local deployment.
 
-  Actions:      deploy   — build and deploy the service to an environment
-                setup    — provision and configure an environment from scratch
+Usage: /devops deploy local
 
-  Environments: local    — Docker Compose on this machine
-                staging  — AWS ECS (staging cluster)
-                prod     — AWS ECS (production cluster)
-
-Examples:
-  /devops deploy local
-  /devops deploy staging
-  /devops setup local
-  /devops setup staging
+Coming soon: deploy staging, deploy prod, setup local, setup staging
 ```
-
-Do not proceed if arguments are invalid.
 
 ---
 
@@ -58,8 +43,8 @@ Use the `Write` tool to create `.devops/run_<unix_timestamp>.json`:
 {
   "run_id": "<unix_timestamp>",
   "created_at": "<ISO datetime>",
-  "action": "<action>",
-  "environment": "<environment>",
+  "action": "deploy",
+  "environment": "local",
   "repo_path": "<pwd output>",
   "git_sha": "<short SHA>",
   "scratchpad_path": "<absolute path to this file>",
@@ -68,8 +53,8 @@ Use the `Write` tool to create `.devops/run_<unix_timestamp>.json`:
   "project": {
     "name": null,
     "docker_compose_file": null,
-    "dockerfile": null,
-    "health_check_endpoint": null
+    "health_check_endpoint": null,
+    "port": null
   },
   "result": {
     "success": null,
@@ -82,8 +67,6 @@ Use the `Write` tool to create `.devops/run_<unix_timestamp>.json`:
 }
 ```
 
-Note the absolute scratchpad path — pass it to the agent.
-
 ---
 
 ## STEP 2 — Invoke the DevOps agent
@@ -92,22 +75,17 @@ Invoke the **devops** agent with this prompt:
 
 ```
 Scratchpad: <absolute scratchpad path>
-Action: <action>
-Environment: <environment>
 Git SHA: <git_sha>
 
-Read CLAUDE.md first to understand the project layout and deployment configuration.
-Then execute the <action> for the <environment> environment, following your instructions exactly.
+Read CLAUDE.md first, then deploy the service locally using Docker Compose.
 Update the scratchpad with your results when done.
 ```
 
-Wait for the devops agent to complete. Read the scratchpad and confirm `phase` is `"complete"` or `"failed"` before printing the final status.
+Wait for the agent to complete. Read the scratchpad and confirm `phase` is `"complete"` or `"failed"`.
 
 ---
 
 ## STEP 3 — Final status
-
-Read the scratchpad one last time.
 
 **If `result.success` is `true`:**
 
@@ -116,12 +94,9 @@ Read the scratchpad one last time.
   DevOps Agent — Done
 ═══════════════════════════════════════════════
 
-  Action:      <action>
-  Environment: <environment>
-  Project:     <project.name>
-  Git SHA:     <git_sha>
-
-  Status: ✓ <ACTION> complete
+  Project:  <project.name>
+  Git SHA:  <git_sha>
+  Status:   ✓ Deployed locally
 
   <If deployed_url is set:>
   URL: <deployed_url>
@@ -145,12 +120,9 @@ Read the scratchpad one last time.
   DevOps Agent — Failed
 ═══════════════════════════════════════════════
 
-  Action:      <action>
-  Environment: <environment>
-  Project:     <project.name>
-  Git SHA:     <git_sha>
-
-  Status: ✗ <ACTION> failed
+  Project:  <project.name>
+  Git SHA:  <git_sha>
+  Status:   ✗ Local deploy failed
 
   Steps completed before failure:
   → <step 1>
@@ -161,6 +133,6 @@ Read the scratchpad one last time.
 
   Report: <result.report_path>
 
-  Fix the issue above and re-run: /devops <action> <environment>
+  Fix the issue above and re-run: /devops deploy local
 ═══════════════════════════════════════════════
 ```
