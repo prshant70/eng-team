@@ -262,8 +262,13 @@ For the `## Deployment` section, populate it using what you detected in STEP 7.5
 - `dockerfile`: use the detected filename, or `Dockerfile` as default
 - `health_check_endpoint`: use the route found in source or healthcheck config; default to `/health`
 - `environments.local.port`: use the first host port from docker-compose `ports:` mapping (e.g. `"3000:3000"` → `3000`); default to `3000`
-- `environments.staging` and `environments.prod`: if AWS env vars were found in `.env.example` (ECR_REGISTRY, ECS_CLUSTER, etc.) use those values; otherwise insert angle-bracket placeholders (e.g. `<account_id>.dkr.ecr.us-east-1.amazonaws.com`) so the user knows exactly what to fill in
-- If IaC was found in STEP 7.5, add a comment in the section noting its location
+
+Only generate the `environments.local` block. Do NOT generate `environments.staging` or `environments.prod` blocks — cloud deployment is not yet supported by the DevOps agent. Add this comment at the bottom of the section so users know what's coming:
+
+```
+# staging and prod environment config coming soon
+# (/devops deploy staging and /devops deploy prod are not yet supported)
+```
 
 Write the generated CLAUDE.md to: **$ARGUMENTS/CLAUDE.md**
 
@@ -291,6 +296,6 @@ fi
 - Entry point: [from STEP 4]
 - Docker Compose: [filename detected or "not found"]
 - Health endpoint: [detected value or "/health (default)"]
-- Deployment section: [filled / placeholders inserted — list any values that need manual completion]
+- Deployment section: local config [filled / defaults used] — staging/prod not generated (coming soon)
 
 The generated CLAUDE.md is now ready for use with `/eng-team` commands. Re-run this command anytime your repo structure or tooling changes.
