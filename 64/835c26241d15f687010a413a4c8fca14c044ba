@@ -1,0 +1,26 @@
+.claude/agents/tech-lead.md
+  s_95b821dcc88603::t_e878a73d058e5f 113
+  s_95b821dcc88603::t_1e4b9cf9a20592 54-66
+  s_95b821dcc88603::t_a45e35b4fbdfeb 98-99
+  s_95b821dcc88603::t_3875afd12ea655 19,22-28,30-33,38
+.claude/agents/engineer.md
+  s_95b821dcc88603::t_116bae6a6365dd 30,32-37
+  s_95b821dcc88603::t_507dc500fe1da1 53,56
+  s_95b821dcc88603::t_e0491cd01ca8b3 65,68
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.9",
+  "base_commit_sha": "64835c26241d15f687010a413a4c8fca14c044ba",
+  "prompts": {},
+  "sessions": {
+    "s_95b821dcc88603": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "668ae2d8-681e-4140-9292-3746a4667e41",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Prashant Mishra <prashantmishra@L9KXW927K6local-594.local>"
+    }
+  }
+}
