@@ -1,0 +1,21 @@
+.claude/agents/tech-lead.md
+  s_95b821dcc88603::t_dc26f530bcf54a 19,22-28,30-33,38-39,54-66,98-99,113
+.claude/agents/engineer.md
+  s_95b821dcc88603::t_dc26f530bcf54a 30,32-37,53,56,65,68
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.9",
+  "base_commit_sha": "cda74d87359d7a1f5b0e1fac64cc3949ddd878aa",
+  "prompts": {},
+  "sessions": {
+    "s_95b821dcc88603": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "668ae2d8-681e-4140-9292-3746a4667e41",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Prashant Mishra <prashantmishra@L9KXW927K6local-594.local>"
+    }
+  }
+}
