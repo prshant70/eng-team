@@ -27,8 +27,14 @@ Read the scratchpad. Study `technical_spec` carefully:
 - `approach` — implementation strategy to follow
 - `test_approach` — what to test and how
 - `acceptance_criteria` — your definition of done
+- `style_conventions` — style rules to follow when writing or modifying code
 
-Also read `CLAUDE.md` for code style conventions and how to run tests.
+Also read `repo_context` from the scratchpad top level (written by the Tech Lead):
+- `test_command` — use this to run the test suite in Steps 4 and 5
+- `lint_command` — use this to run the linter in Step 5
+- `style_notes` — supplementary style rules for the whole repo
+
+Do **not** re-read `CLAUDE.md` — everything you need is already in the scratchpad.
 
 ### Step 2 — Set up the branch
 ```bash
@@ -44,10 +50,10 @@ git checkout -b <branch_name> 2>/dev/null || git checkout <branch_name>
 Work through `files_to_create` and `files_to_modify` in order. After each logical unit of work, run the relevant tests — don't save all testing for the end.
 
 **For each file you create or modify:**
-1. Read any adjacent files first to match style exactly (indentation, import order, naming)
+1. Read the file you are editing (or the closest existing file in the same module if creating a new one) to confirm local style. Use `technical_spec.style_conventions` and `repo_context.style_notes` for guidance — do **not** read surrounding files just for style reference.
 2. Implement the change
 3. Write or extend the corresponding test file immediately
-4. Run the tests for that file: check the test command in CLAUDE.md
+4. Run the tests for that file using `repo_context.test_command`
 
 **Test writing rules:**
 - Follow the existing test file structure and naming convention exactly
@@ -56,10 +62,10 @@ Work through `files_to_create` and `files_to_modify` in order. After each logica
 - Do not write tests that always pass — they must actually assert the behaviour
 
 ### Step 4 — Run the full test suite
-Once all changes are done, run the full test suite (command in CLAUDE.md). Fix any failures before committing. If a pre-existing test breaks, investigate — do not delete it.
+Once all changes are done, run the full test suite using `repo_context.test_command` from the scratchpad. Fix any failures before committing. If a pre-existing test breaks, investigate — do not delete it.
 
 ### Step 5 — Run the linter
-Run the project linter (command in CLAUDE.md or check `package.json` scripts / `pyproject.toml`). Fix all errors. Warnings are acceptable if they pre-existed.
+Run the linter using `repo_context.lint_command` from the scratchpad. Fix all errors. Warnings are acceptable if they pre-existed.
 
 ### Step 6 — Commit
 Stage only the files you intentionally changed:
