@@ -24,14 +24,6 @@ The other dimension of this is disruption. Replacing the entire team workflow at
 
 This is not a limitation. It is the design.
 
-### Surface uncertainty, never absorb it silently
-
-An agent that proceeds on a bad spec is more dangerous than one that stops and asks. Silent assumptions — where the agent invents an interpretation of an ambiguous requirement and implements against it — compound quietly. The code looks correct, the tests pass against the agent's interpretation, the reviewer approves the diff, and the PR merges before anyone realizes the feature doesn't match what was intended.
-
-Every agent in the workflow is built to surface uncertainty before it becomes code. When inputs are unclear, the right behavior is to name the gap and wait — not to fill it in and proceed. This is slower in the moment and faster over the full cycle, because the cost of fixing a wrong interpretation after a commit is always higher than the cost of a clarification before one.
-
-The corollary: output quality is bounded by input quality. An agent cannot manufacture intent it wasn't given. The human-AI interface — the point where human requirements become agent inputs — is the most important design surface in the entire system. How that interface is structured determines how much ambiguity the downstream agents have to absorb.
-
 ---
 
 ## The workflow
