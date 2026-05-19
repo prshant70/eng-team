@@ -1,0 +1,12 @@
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.10",
+  "base_commit_sha": "b57384f51072e1181f66920dce0f47dbacdde34e",
+  "prompts": {},
+  "humans": {
+    "h_946867d394b55d": {
+      "author": "Prashant Mishra <prashantmishra@L9KXW927K6local-594.local>"
+    }
+  }
+}
