@@ -1,0 +1,19 @@
+quality-gates-multi-repo.md
+  s_e84fe3dd81a8fe::t_7cdd0afbb795b4 1-96
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.11",
+  "base_commit_sha": "1b8c145e65fa348eb817d423ff084355c5dfccdb",
+  "prompts": {},
+  "sessions": {
+    "s_e84fe3dd81a8fe": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "adbce90a-796e-422b-b0b9-4874651fe0c6",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Prashant Mishra <prashant.iecian@gmail.com>"
+    }
+  }
+}
