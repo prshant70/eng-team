@@ -1,0 +1,19 @@
+agents-multi-repo.md
+  s_e84fe3dd81a8fe::t_f5a3fd6db6225a 1-120
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.11",
+  "base_commit_sha": "97a1e4ca5a0b90036e5b65b2aa799fa7959972fe",
+  "prompts": {},
+  "sessions": {
+    "s_e84fe3dd81a8fe": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "adbce90a-796e-422b-b0b9-4874651fe0c6",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Prashant Mishra <prashant.iecian@gmail.com>"
+    }
+  }
+}
