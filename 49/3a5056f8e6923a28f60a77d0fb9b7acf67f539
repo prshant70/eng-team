@@ -1,0 +1,19 @@
+docs/index.html
+  s_e3a736afd4e2d2::t_d372bc59d9b648 1-657
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "493a5056f8e6923a28f60a77d0fb9b7acf67f539",
+  "prompts": {},
+  "sessions": {
+    "s_e3a736afd4e2d2": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "fd72ea90-6aea-49d7-8261-1b4189f816cc",
+        "model": "composer-2.5"
+      },
+      "human_author": "Prashant Mishra <prashant.iecian@gmail.com>"
+    }
+  }
+}
