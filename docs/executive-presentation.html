@@ -1,0 +1,1432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Eng-Team — Executive Presentation</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #07090f;
+      --bg-slide: #0c1018;
+      --surface: #141b28;
+      --border: #243044;
+      --text: #f0f3f8;
+      --muted: #8a96ab;
+      --accent: #4d9fff;
+      --accent-soft: rgba(77, 159, 255, 0.14);
+      --cyan: #2ee6c8;
+      --cyan-soft: rgba(46, 230, 200, 0.12);
+      --amber: #f5b942;
+      --amber-soft: rgba(245, 185, 66, 0.12);
+      --rose: #ff6b8a;
+      --rose-soft: rgba(255, 107, 138, 0.12);
+      --violet: #b48cff;
+      --violet-soft: rgba(180, 140, 255, 0.12);
+      --green: #3dd68c;
+      --green-soft: rgba(61, 214, 140, 0.12);
+      --font: "Instrument Sans", system-ui, sans-serif;
+      --mono: "IBM Plex Mono", ui-monospace, monospace;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      height: 100%;
+      overflow: hidden;
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    /* Deck shell */
+    .deck {
+      height: 100vh;
+      width: 100vw;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .slide {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 4vh 6vw 8vh;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateX(40px);
+      transition: opacity 0.45s ease, transform 0.45s ease, visibility 0.45s;
+      background:
+        radial-gradient(ellipse 60% 50% at 80% 20%, rgba(77, 159, 255, 0.06), transparent),
+        radial-gradient(ellipse 40% 35% at 10% 80%, rgba(180, 140, 255, 0.05), transparent),
+        var(--bg-slide);
+    }
+
+    .slide.active {
+      opacity: 1;
+      visibility: visible;
+      transform: translateX(0);
+      z-index: 2;
+    }
+
+    .slide.prev {
+      opacity: 0;
+      transform: translateX(-40px);
+      z-index: 1;
+    }
+
+    /* Typography */
+    .eyebrow {
+      font-size: clamp(0.65rem, 1.2vw, 0.78rem);
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 1rem;
+    }
+
+    .eyebrow.amber { color: var(--amber); }
+    .eyebrow.cyan { color: var(--cyan); }
+    .eyebrow.violet { color: var(--violet); }
+    .eyebrow.green { color: var(--green); }
+
+    h1 {
+      font-size: clamp(2rem, 5.5vw, 3.75rem);
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      line-height: 1.08;
+      max-width: 14ch;
+      margin-bottom: 1.25rem;
+    }
+
+    h1.wide { max-width: none; }
+
+    h2 {
+      font-size: clamp(1.5rem, 3.5vw, 2.35rem);
+      font-weight: 700;
+      letter-spacing: -0.025em;
+      line-height: 1.15;
+      margin-bottom: 1.5rem;
+    }
+
+    .subtitle {
+      font-size: clamp(1rem, 2vw, 1.35rem);
+      color: var(--muted);
+      max-width: 42rem;
+      line-height: 1.55;
+    }
+
+    .subtitle strong { color: var(--text); font-weight: 600; }
+
+    /* Reveal animations */
+    .reveal {
+      opacity: 0;
+      transform: translateY(18px);
+      transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+
+    .slide.active .reveal { opacity: 1; transform: translateY(0); }
+    .slide.active .reveal:nth-child(1) { transition-delay: 0.08s; }
+    .slide.active .reveal:nth-child(2) { transition-delay: 0.16s; }
+    .slide.active .reveal:nth-child(3) { transition-delay: 0.24s; }
+    .slide.active .reveal:nth-child(4) { transition-delay: 0.32s; }
+    .slide.active .reveal:nth-child(5) { transition-delay: 0.40s; }
+    .slide.active .reveal:nth-child(6) { transition-delay: 0.48s; }
+
+    /* Grid layouts */
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3rem;
+      align-items: center;
+      width: 100%;
+      max-width: 1100px;
+    }
+
+    .three-col {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.25rem;
+      width: 100%;
+      max-width: 1050px;
+      margin-top: 1.5rem;
+    }
+
+    .four-col {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+      width: 100%;
+      max-width: 1050px;
+      margin-top: 1.5rem;
+    }
+
+    /* Cards */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1.35rem 1.5rem;
+    }
+
+    .card .icon { font-size: 1.75rem; margin-bottom: 0.65rem; }
+    .card h3 { font-size: 1rem; font-weight: 700; margin-bottom: 0.4rem; }
+    .card p { font-size: 0.88rem; color: var(--muted); line-height: 1.5; }
+
+    .card.accent { border-color: rgba(77, 159, 255, 0.35); background: var(--accent-soft); }
+    .card.cyan { border-color: rgba(46, 230, 200, 0.3); background: var(--cyan-soft); }
+    .card.amber { border-color: rgba(245, 185, 66, 0.3); background: var(--amber-soft); }
+    .card.rose { border-color: rgba(255, 107, 138, 0.3); background: var(--rose-soft); }
+    .card.violet { border-color: rgba(180, 140, 255, 0.35); background: var(--violet-soft); }
+    .card.green { border-color: rgba(61, 214, 140, 0.3); background: var(--green-soft); }
+
+    /* Bullet list */
+    .bullets {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+      max-width: 680px;
+    }
+
+    .bullets li {
+      font-size: clamp(0.95rem, 1.6vw, 1.15rem);
+      color: var(--muted);
+      padding-left: 1.5rem;
+      position: relative;
+      line-height: 1.45;
+    }
+
+    .bullets li::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0.55em;
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--accent);
+    }
+
+    .bullets li strong { color: var(--text); }
+
+    .bullets.amber li::before { background: var(--amber); }
+    .bullets.green li::before { background: var(--green); }
+    .bullets.rose li::before { background: var(--rose); }
+
+    /* Pipeline diagram */
+    .pipeline {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      margin: 2rem 0;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .pipe-node {
+      text-align: center;
+      min-width: 100px;
+    }
+
+    .pipe-node .circle {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      background: var(--surface);
+      border: 2px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.6rem;
+      margin: 0 auto 0.55rem;
+    }
+
+    .pipe-node.highlight .circle {
+      border-color: var(--accent);
+      box-shadow: 0 0 28px rgba(77, 159, 255, 0.25);
+    }
+
+    .pipe-node.new .circle {
+      border-color: var(--violet);
+      box-shadow: 0 0 28px rgba(180, 140, 255, 0.25);
+    }
+
+    .pipe-node .label {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--muted);
+    }
+
+    .pipe-node .sublabel {
+      font-size: 0.65rem;
+      color: var(--muted);
+      opacity: 0.7;
+      margin-top: 0.15rem;
+    }
+
+    .pipe-arrow {
+      font-size: 1.25rem;
+      color: var(--border);
+      padding: 0 0.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .pipe-parallel {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+
+    .pipe-parallel .circle { width: 56px; height: 56px; font-size: 1.2rem; }
+
+    /* Workflow flowchart — CSS grid for aligned nodes & loops */
+    .wf {
+      width: 100%;
+      max-width: 920px;
+      margin: 1rem auto 0;
+    }
+
+    .wf-body {
+      width: 100%;
+    }
+
+    .wf-orch-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 0.35rem;
+    }
+
+    .wf-orch {
+      background: var(--amber-soft);
+      border: 1.5px solid rgba(245, 185, 66, 0.35);
+      border-radius: 10px;
+      padding: 0.45rem 1.5rem;
+      text-align: center;
+    }
+
+    .wf-orch .title { font-size: 0.82rem; font-weight: 700; }
+    .wf-orch .sub { font-size: 0.65rem; color: var(--muted); margin-top: 0.1rem; }
+
+    .wf-orch-stem {
+      width: 2px;
+      height: 14px;
+      background: var(--border);
+      position: relative;
+    }
+
+    .wf-orch-stem::after {
+      content: "";
+      position: absolute;
+      bottom: -1px;
+      left: 50%;
+      transform: translateX(-50%);
+      border-left: 5px solid transparent;
+      border-right: 5px solid transparent;
+      border-top: 6px solid var(--border);
+    }
+
+    /* 9-col grid: node · arrow · node · arrow · node · arrow · node · arrow · node */
+    .wf-grid {
+      display: grid;
+      grid-template-columns: 1fr 24px 2.4fr 24px 1fr;
+      align-items: center;
+      column-gap: 0;
+    }
+
+    .wf-g1 { grid-column: 1; }
+    .wf-g2 { grid-column: 2; }
+    .wf-g3 { grid-column: 3; }
+    .wf-g4 { grid-column: 4; }
+    .wf-g5 { grid-column: 5; }
+
+    /* Autonomous zone — single grid cell containing inner track */
+    .wf-auto-zone {
+      grid-column: 3;
+      position: relative;
+      background: rgba(46, 230, 200, 0.06);
+      border: 1.5px dashed rgba(46, 230, 200, 0.35);
+      border-radius: 12px;
+      padding: 0.45rem 0.35rem 0.4rem;
+    }
+
+    .wf-auto-zone .wf-auto-label {
+      position: absolute;
+      top: -0.55rem;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 0.58rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--cyan);
+      background: var(--bg-slide);
+      padding: 0.1rem 0.55rem;
+      border-radius: 999px;
+      border: 1px solid rgba(46, 230, 200, 0.35);
+      white-space: nowrap;
+      z-index: 2;
+    }
+
+    .wf-auto-track {
+      display: grid;
+      grid-template-columns: 1fr 20px 1fr 20px 1fr;
+      align-items: center;
+    }
+
+    .wf-box {
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      padding: 0.55rem 0.35rem;
+      text-align: center;
+    }
+
+    .wf-box .title { font-size: 0.78rem; font-weight: 700; line-height: 1.2; }
+    .wf-box .sub { font-size: 0.6rem; color: var(--muted); margin-top: 0.18rem; line-height: 1.25; }
+
+    .wf-box.human { border-color: rgba(77, 159, 255, 0.4); background: var(--accent-soft); }
+
+    .wf-box.autonomous {
+      border-color: rgba(46, 230, 200, 0.45);
+      background: rgba(46, 230, 200, 0.1);
+    }
+
+    .wf-box.autonomous .badge-auto {
+      display: inline-block;
+      font-size: 0.5rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--cyan);
+      margin-top: 0.2rem;
+      opacity: 0.85;
+    }
+
+    .wf-box.done { border-color: rgba(61, 214, 140, 0.35); background: var(--green-soft); }
+
+    .wf-arrow {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--border);
+      line-height: 1;
+      user-select: none;
+    }
+
+    .wf-arrow.autonomous { color: rgba(46, 230, 200, 0.55); }
+
+    .wf-arrow svg { display: block; width: 18px; height: auto; }
+
+    .wf-legend {
+      display: flex;
+      justify-content: center;
+      gap: 1.25rem;
+      margin-top: 0.65rem;
+      flex-wrap: wrap;
+    }
+
+    .wf-legend-item {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.68rem;
+      color: var(--muted);
+    }
+
+    .wf-legend-item .sw {
+      width: 14px;
+      height: 14px;
+      border-radius: 4px;
+      flex-shrink: 0;
+    }
+
+    .wf-legend-item .sw.human-sw {
+      background: var(--accent-soft);
+      border: 1.5px solid rgba(77, 159, 255, 0.4);
+    }
+
+    .wf-legend-item .sw.auto-sw {
+      background: rgba(46, 230, 200, 0.08);
+      border: 1.5px dashed rgba(46, 230, 200, 0.45);
+    }
+
+    .wf-legend-item .sw.out-sw {
+      background: var(--green-soft);
+      border: 1.5px solid rgba(61, 214, 140, 0.35);
+    }
+
+    /* Loop row */
+    .wf-loops {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.65rem;
+      margin-top: 0.75rem;
+      max-width: 920px;
+    }
+
+    .wf-loop-cell {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .wf-loop-connect {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+      margin-bottom: 0.35rem;
+      width: 55%;
+    }
+
+    .wf-loop-connect .stem {
+      flex: 1;
+      height: 2px;
+    }
+
+    .wf-loop-connect .stem.green { background: var(--green); opacity: 0.45; }
+    .wf-loop-connect .stem.violet { background: var(--violet); opacity: 0.45; }
+    .wf-loop-connect .stem.amber { background: var(--amber); opacity: 0.45; }
+
+    .wf-loop-connect .bidir {
+      font-size: 0.68rem;
+      font-weight: 700;
+      line-height: 1;
+      flex-shrink: 0;
+    }
+
+    .wf-loop-connect .bidir.green { color: var(--green); }
+    .wf-loop-connect .bidir.violet { color: var(--violet); }
+    .wf-loop-connect .bidir.amber { color: var(--amber); }
+
+    .wf-loop-pill {
+      width: 100%;
+      border-radius: 8px;
+      padding: 0.5rem 0.55rem;
+      text-align: center;
+      border: 1px solid;
+    }
+
+    .wf-loop-pill.green { background: var(--green-soft); border-color: rgba(61, 214, 140, 0.25); }
+    .wf-loop-pill.violet { background: var(--violet-soft); border-color: rgba(180, 140, 255, 0.25); }
+    .wf-loop-pill.amber { background: var(--amber-soft); border-color: rgba(245, 185, 66, 0.25); }
+
+    .wf-loop-pill .label {
+      font-size: 0.68rem;
+      font-weight: 700;
+      line-height: 1.3;
+    }
+
+    .wf-loop-pill.green .label { color: var(--green); }
+    .wf-loop-pill.violet .label { color: var(--violet); }
+    .wf-loop-pill.amber .label { color: var(--amber); }
+
+    .wf-loop-pill .detail {
+      font-size: 0.6rem;
+      color: var(--muted);
+      margin-top: 0.15rem;
+      line-height: 1.3;
+    }
+
+    .wf-footnote {
+      margin-top: 0.85rem;
+      font-size: 0.72rem;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .wf-footnote code {
+      font-family: var(--mono);
+      font-size: 0.68rem;
+      color: var(--accent);
+    }
+
+    @media (max-width: 800px) {
+      .wf-grid { grid-template-columns: 1fr; }
+      .wf-g1, .wf-g2, .wf-g3, .wf-g4, .wf-g5 { grid-column: 1; }
+      .wf-arrow { transform: rotate(90deg); padding: 0.15rem 0; }
+      .wf-auto-track { grid-template-columns: 1fr; gap: 0.25rem; }
+      .wf-auto-track .wf-arrow { transform: rotate(90deg); }
+      .wf-loops { grid-template-columns: 1fr; }
+    }
+
+    /* Stage strip */
+    .stages {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 1.75rem;
+      flex-wrap: wrap;
+    }
+
+    .stage-chip {
+      flex: 1;
+      min-width: 130px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0.85rem 1rem;
+      text-align: center;
+    }
+
+    .stage-chip .num {
+      font-size: 0.65rem;
+      font-weight: 700;
+      color: var(--accent);
+      letter-spacing: 0.05em;
+      margin-bottom: 0.25rem;
+    }
+
+    .stage-chip .name {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    /* Journey bar */
+    .journey {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      margin-top: 2rem;
+      max-width: 900px;
+    }
+
+    .journey-step {
+      flex: 1;
+      text-align: center;
+      position: relative;
+    }
+
+    .journey-step .dot {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--border);
+      margin: 0 auto 0.5rem;
+      transition: background 0.3s, box-shadow 0.3s;
+    }
+
+    .journey-step.active .dot {
+      background: var(--accent);
+      box-shadow: 0 0 12px var(--accent);
+    }
+
+    .journey-step.done .dot { background: var(--green); }
+
+    .journey-step .j-label {
+      font-size: 0.68rem;
+      font-weight: 600;
+      color: var(--muted);
+      line-height: 1.3;
+    }
+
+    .journey-step.active .j-label { color: var(--accent); }
+
+    .journey-line {
+      flex: 0 0 40px;
+      height: 2px;
+      background: var(--border);
+      margin-bottom: 1.5rem;
+    }
+
+    /* Quote / callout */
+    .callout {
+      border-left: 4px solid var(--accent);
+      padding: 1.25rem 1.5rem;
+      background: var(--accent-soft);
+      border-radius: 0 12px 12px 0;
+      max-width: 720px;
+      margin-top: 1.5rem;
+    }
+
+    .callout p {
+      font-size: clamp(1rem, 1.8vw, 1.2rem);
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    .callout strong { color: var(--text); }
+
+    /* Table compact */
+    .mini-table {
+      width: 100%;
+      max-width: 900px;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+      margin-top: 1rem;
+    }
+
+    .mini-table th {
+      text-align: left;
+      padding: 0.65rem 1rem;
+      background: var(--surface);
+      color: var(--muted);
+      font-weight: 600;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .mini-table td {
+      padding: 0.7rem 1rem;
+      border-bottom: 1px solid var(--border);
+      color: var(--muted);
+    }
+
+    .mini-table td:first-child { font-weight: 700; color: var(--accent); width: 3rem; }
+    .mini-table tr:last-child td { border-bottom: none; }
+
+    .tag {
+      display: inline-block;
+      font-size: 0.62rem;
+      font-weight: 700;
+      padding: 0.15rem 0.45rem;
+      border-radius: 999px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .tag-now { background: var(--green-soft); color: var(--green); }
+    .tag-new { background: var(--violet-soft); color: var(--violet); }
+    .tag-next { background: var(--amber-soft); color: var(--amber); }
+
+    /* Comparison */
+    .vs-grid {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 1.5rem;
+      align-items: stretch;
+      max-width: 950px;
+      margin-top: 1.5rem;
+    }
+
+    .vs-divider {
+      display: flex;
+      align-items: center;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--muted);
+      letter-spacing: 0.08em;
+    }
+
+    .vs-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1.5rem;
+    }
+
+    .vs-box h3 {
+      font-size: 0.85rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .vs-box.before h3 { color: var(--muted); }
+    .vs-box.after h3 { color: var(--cyan); }
+    .vs-box.after { border-color: rgba(46, 230, 200, 0.3); }
+
+    /* Roadmap timeline */
+    .roadmap {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      max-width: 780px;
+      margin-top: 1.25rem;
+    }
+
+    .road-item {
+      display: grid;
+      grid-template-columns: 100px 1fr;
+      gap: 1.25rem;
+      padding: 1rem 0;
+      border-left: 2px solid var(--border);
+      margin-left: 50px;
+      padding-left: 1.5rem;
+      position: relative;
+    }
+
+    .road-item::before {
+      content: "";
+      position: absolute;
+      left: -7px;
+      top: 1.35rem;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--border);
+    }
+
+    .road-item.phase-now::before { background: var(--green); box-shadow: 0 0 10px var(--green); }
+    .road-item.phase-1::before { background: var(--accent); }
+    .road-item.phase-2::before { background: var(--amber); }
+    .road-item.phase-3::before { background: var(--violet); }
+
+    .road-item .phase-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+      text-align: right;
+      padding-top: 0.15rem;
+    }
+
+    .road-item h4 { font-size: 0.95rem; font-weight: 700; margin-bottom: 0.25rem; }
+    .road-item p { font-size: 0.82rem; color: var(--muted); }
+
+    /* Controls */
+    .controls {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.85rem 1.5rem;
+      background: rgba(7, 9, 15, 0.92);
+      backdrop-filter: blur(10px);
+      border-top: 1px solid var(--border);
+    }
+
+    .progress-track {
+      flex: 1;
+      max-width: 400px;
+      height: 3px;
+      background: var(--border);
+      border-radius: 999px;
+      margin: 0 1.5rem;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), var(--cyan));
+      border-radius: 999px;
+      transition: width 0.4s ease;
+    }
+
+    .ctrl-btn {
+      font-family: var(--font);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 0.45rem 1rem;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s, border-color 0.2s;
+    }
+
+    .ctrl-btn:hover { background: var(--border); border-color: var(--accent); }
+    .ctrl-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+    .slide-counter {
+      font-size: 0.78rem;
+      color: var(--muted);
+      font-variant-numeric: tabular-nums;
+      min-width: 4rem;
+      text-align: center;
+    }
+
+    .hint {
+      font-size: 0.68rem;
+      color: var(--muted);
+      opacity: 0.6;
+    }
+
+    kbd {
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 0.1rem 0.35rem;
+      border-radius: 4px;
+    }
+
+    /* Title slide special */
+    .title-meta {
+      margin-top: 2.5rem;
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+
+    .stat-row {
+      display: flex;
+      gap: 2.5rem;
+      margin-top: 2rem;
+    }
+
+    .stat .num {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: var(--accent);
+      letter-spacing: -0.03em;
+      line-height: 1;
+    }
+
+    .stat .label {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-top: 0.35rem;
+    }
+
+    @media (max-width: 900px) {
+      .two-col, .three-col, .four-col, .vs-grid { grid-template-columns: 1fr; }
+      .vs-divider { justify-content: center; padding: 0.5rem 0; }
+      .slide { padding: 3vh 5vw 10vh; }
+      .pipeline { gap: 0.25rem; }
+      .pipe-arrow { padding: 0 0.25rem; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .slide, .reveal, .progress-fill { transition: none !important; }
+    }
+
+    /* Print */
+    @media print {
+      .controls { display: none; }
+      .slide { position: relative; page-break-after: always; opacity: 1 !important; visibility: visible !important; transform: none !important; height: 100vh; }
+    }
+  </style>
+</head>
+<body>
+  <div class="deck" id="deck">
+
+    <!-- SLIDE 1: Title -->
+    <section class="slide active" data-chapter="intro">
+      <p class="eyebrow reveal">Executive Briefing · May 2026</p>
+      <h1 class="reveal">Autonomous Engineering with Quality Gates</h1>
+      <p class="subtitle reveal">
+        From a working AI engineering team today — to trusted, verifiable delivery across single and multi-repo environments.
+      </p>
+      <p class="title-meta reveal">eng-team · Engineering AI Team</p>
+    </section>
+
+    <!-- SLIDE 2: The opportunity -->
+    <section class="slide" data-chapter="intro">
+      <p class="eyebrow reveal">The Opportunity</p>
+      <h2 class="reveal">Most AI in engineering is still faster autocomplete</h2>
+      <ul class="bullets reveal">
+        <li>Today: a human accepts or rejects <strong>every</strong> AI output</li>
+        <li>The ceiling: individual speed, not autonomous delivery</li>
+        <li>The real opportunity: hand the system a requirement, get back <strong>working, tested, reviewed code</strong></li>
+      </ul>
+      <div class="callout reveal">
+        <p>We start where AI output can actually be <strong>verified</strong> — tests pass or they don't, diffs make sense or they don't.</p>
+      </div>
+    </section>
+
+    <!-- SLIDE 3: Where we are -->
+    <section class="slide" data-chapter="today">
+      <p class="eyebrow green reveal">Where We Are Today</p>
+      <h2 class="reveal">eng-team: PRD → merge-ready PR, autonomously</h2>
+      <p class="subtitle reveal" style="margin-bottom:0.5rem">
+        A Claude Code workflow that turns a plain-English feature request into committed, reviewed code — without changing how product or leadership work.
+      </p>
+      <div class="stat-row reveal">
+        <div class="stat"><div class="num">3</div><div class="label">Core agents today</div></div>
+        <div class="stat"><div class="num">1</div><div class="label">Human gate (PRD in)</div></div>
+        <div class="stat"><div class="num">0</div><div class="label">Peer chat between agents</div></div>
+      </div>
+    </section>
+
+    <!-- SLIDE 4: Current workflow -->
+    <section class="slide" data-chapter="today">
+      <p class="eyebrow green reveal">Current Workflow</p>
+      <h2 class="reveal">Forward path + three bounded iteration loops</h2>
+      <div class="wf reveal">
+        <div class="wf-orch-wrap">
+          <div class="wf-orch">
+            <div class="title">Orchestrator</div>
+            <div class="sub">/eng-team · coordinates all phases &amp; loops</div>
+          </div>
+          <div class="wf-orch-stem"></div>
+        </div>
+
+        <div class="wf-body">
+        <!-- Main forward path -->
+        <div class="wf-grid">
+          <div class="wf-box human wf-g1"><div class="title">Human</div><div class="sub">Provides PRD</div></div>
+          <div class="wf-arrow wf-g2" aria-hidden="true"><svg viewBox="0 0 20 12"><path d="M0 6h16M16 6l-5-4M16 6l-5 4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+
+          <div class="wf-auto-zone wf-g3">
+            <span class="wf-auto-label">Autonomous</span>
+            <div class="wf-auto-track">
+              <div class="wf-box autonomous"><div class="title">Tech Lead</div><div class="sub">Technical spec</div><div class="badge-auto">AI agent</div></div>
+              <div class="wf-arrow autonomous" aria-hidden="true"><svg viewBox="0 0 20 12"><path d="M0 6h16M16 6l-5-4M16 6l-5 4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+              <div class="wf-box autonomous"><div class="title">Engineer</div><div class="sub">Build + test</div><div class="badge-auto">AI agent</div></div>
+              <div class="wf-arrow autonomous" aria-hidden="true"><svg viewBox="0 0 20 12"><path d="M0 6h16M16 6l-5-4M16 6l-5 4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+              <div class="wf-box autonomous"><div class="title">Reviewer</div><div class="sub">Diff review</div><div class="badge-auto">AI agent</div></div>
+            </div>
+          </div>
+
+          <div class="wf-arrow wf-g4" aria-hidden="true"><svg viewBox="0 0 20 12"><path d="M0 6h16M16 6l-5-4M16 6l-5 4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <div class="wf-box done wf-g5"><div class="title">Merge-ready PR</div><div class="sub">Human merge decision</div></div>
+        </div>
+
+        <div class="wf-legend">
+          <div class="wf-legend-item"><span class="sw human-sw"></span>Human input / gate</div>
+          <div class="wf-legend-item"><span class="sw auto-sw"></span>Autonomous agent pipeline</div>
+          <div class="wf-legend-item"><span class="sw out-sw"></span>Human-reviewed output</div>
+        </div>
+
+        <!-- Iteration loops -->
+        <div class="wf-loops">
+          <div class="wf-loop-cell">
+            <div class="wf-loop-connect">
+              <div class="stem green"></div>
+              <span class="bidir green">⇄</span>
+              <div class="stem green"></div>
+            </div>
+            <div class="wf-loop-pill green">
+              <div class="label">Human ⇄ Tech Lead</div>
+              <div class="detail">PRD clarification · intent gate</div>
+            </div>
+          </div>
+          <div class="wf-loop-cell">
+            <div class="wf-loop-connect">
+              <div class="stem violet"></div>
+              <span class="bidir violet">⇄</span>
+              <div class="stem violet"></div>
+            </div>
+            <div class="wf-loop-pill violet">
+              <div class="label">Engineer ⇄ Tech Lead</div>
+              <div class="detail">Spec gaps → clarify spec · max 1 cycle</div>
+            </div>
+          </div>
+          <div class="wf-loop-cell">
+            <div class="wf-loop-connect">
+              <div class="stem amber"></div>
+              <span class="bidir amber">⇄</span>
+              <div class="stem amber"></div>
+            </div>
+            <div class="wf-loop-pill amber">
+              <div class="label">Engineer ⇄ Reviewer</div>
+              <div class="detail">Reject → fix → targeted re-review · max 1 cycle</div>
+            </div>
+          </div>
+        </div>
+        </div>
+
+        <p class="wf-footnote">All agents read/write <code>.eng_team/task_*.json</code> — shared scratchpad &amp; full audit trail · Reviewer judges the diff, not intent</p>
+      </div>
+    </section>
+
+    <!-- SLIDE 5: The problem -->
+    <section class="slide" data-chapter="problem">
+      <p class="eyebrow amber reveal">The Challenge</p>
+      <h2 class="reveal">Why autonomous agents need quality gates</h2>
+      <div class="four-col reveal">
+        <div class="card rose">
+          <div class="icon">🔍</div>
+          <h3>Too little context</h3>
+          <p>Agent invents patterns it doesn't know exist in the repo.</p>
+        </div>
+        <div class="card amber">
+          <div class="icon">📈</div>
+          <h3>Scope creep</h3>
+          <p>Nothing stops over-engineering when there's no plan boundary.</p>
+        </div>
+        <div class="card accent">
+          <div class="icon">🔄</div>
+          <h3>No verification loop</h3>
+          <p>Code handed off without proving it works or matches intent.</p>
+        </div>
+        <div class="card violet">
+          <div class="icon">🪞</div>
+          <h3>Self-review bias</h3>
+          <p>The agent that wrote the code also "reviewed" it.</p>
+        </div>
+      </div>
+      <p class="subtitle reveal" style="margin-top:1.5rem;font-size:1rem">
+        Without gates, AI PRs erode trust faster than they create value.
+      </p>
+    </section>
+
+    <!-- SLIDE 6: Quality gates overview -->
+    <section class="slide" data-chapter="gates">
+      <p class="eyebrow reveal">Quality Gates Framework</p>
+      <h2 class="reveal">Five stages — catch failures where they're cheapest</h2>
+      <div class="stages reveal">
+        <div class="stage-chip"><div class="num">STAGE 1</div><div class="name">Pre-flight</div></div>
+        <div class="stage-chip"><div class="num">STAGE 2</div><div class="name">In-flight</div></div>
+        <div class="stage-chip"><div class="num">STAGE 3</div><div class="name">Post-impl</div></div>
+        <div class="stage-chip"><div class="num">STAGE 4</div><div class="name">Adversarial Review</div></div>
+        <div class="stage-chip"><div class="num">STAGE 5</div><div class="name">Trust Loop</div></div>
+      </div>
+      <div class="callout reveal">
+        <p>No single gate is enough. The combination of <strong>pre-flight discipline</strong>, <strong>mechanical checks</strong>, and an <strong>independent reviewer</strong> covers the three biggest failure modes.</p>
+      </div>
+    </section>
+
+    <!-- SLIDE 7: Single repo detail -->
+    <section class="slide" data-chapter="gates">
+      <p class="eyebrow reveal">Single-Repo Environment</p>
+      <h2 class="reveal">Quality assurance for one codebase</h2>
+      <div class="two-col reveal">
+        <div>
+          <h3 style="font-size:0.85rem;color:var(--accent);margin-bottom:0.75rem;text-transform:uppercase;letter-spacing:0.06em">Before code is written</h3>
+          <ul class="bullets" style="gap:0.6rem">
+            <li style="font-size:0.9rem"><strong>Plan artifact</strong> — files, LOC estimate, approach mapped to acceptance criteria</li>
+            <li style="font-size:0.9rem"><strong>Scope check</strong> — flag over-engineering before it starts</li>
+            <li style="font-size:0.9rem"><strong>CLAUDE.md</strong> — repo constitution all agents must read</li>
+          </ul>
+        </div>
+        <div>
+          <h3 style="font-size:0.85rem;color:var(--cyan);margin-bottom:0.75rem;text-transform:uppercase;letter-spacing:0.06em">Before PR opens</h3>
+          <ul class="bullets" style="gap:0.6rem">
+            <li style="font-size:0.9rem"><strong>Tests pass</strong> — full suite, enforced mechanically</li>
+            <li style="font-size:0.9rem"><strong>Diff coverage</strong> — new code must have tests</li>
+            <li style="font-size:0.9rem"><strong>Lint + diff audit</strong> — zero tolerance; flag unexpected file changes</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 8: Adversarial reviewer -->
+    <section class="slide" data-chapter="gates">
+      <p class="eyebrow reveal">Highest-Trust Gate</p>
+      <h2 class="reveal">The agent that writes code must never be the sole reviewer</h2>
+      <div class="two-col reveal">
+        <ul class="bullets">
+          <li>Separate agent with <strong>fresh context</strong> and no attachment to the implementation</li>
+          <li>Structured checklist: every acceptance criterion covered? Extra code? Pattern divergence?</li>
+          <li>Output: <strong>review report attached to the PR</strong> — human reviewer sees AI assessment + diff</li>
+          <li>Reduces cognitive load; focuses human attention where it matters</li>
+        </ul>
+        <div class="card violet">
+          <h3>Trust over time</h3>
+          <p style="margin:0.75rem 0">Capture every human correction as a CLAUDE.md update or annotated example.</p>
+          <p>Periodically re-evaluate: would a fresh agent implement the same way? Divergence signals drift.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 9: Single repo priority -->
+    <section class="slide" data-chapter="gates">
+      <p class="eyebrow reveal">Single-Repo Priority</p>
+      <h2 class="reveal">Implement in this order</h2>
+      <table class="mini-table reveal">
+        <thead><tr><th>#</th><th>Gate</th><th>Impact</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>CLAUDE.md with explicit conventions</td><td>Repo context for all agents</td></tr>
+          <tr><td>2</td><td>Plan artifact + scope check</td><td>Catch over-engineering early</td></tr>
+          <tr><td>3</td><td>Full test suite enforcement</td><td>Non-negotiable quality floor</td></tr>
+          <tr><td>4</td><td>Adversarial reviewer agent</td><td>Builds human trust directly</td></tr>
+          <tr><td>5</td><td>Diff size + blast radius audit</td><td>Catch subtle scope creep</td></tr>
+          <tr><td>6</td><td>Feedback capture loop</td><td>Compounds quality over time</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- SLIDE 10: Multi-repo problem -->
+    <section class="slide" data-chapter="multi">
+      <p class="eyebrow cyan reveal">Multi-Repo Reality</p>
+      <h2 class="reveal">Single-repo gates break down in microservices</h2>
+      <div class="four-col reveal">
+        <div class="card rose"><h3>Blind spots</h3><p>Full context on Service A, no idea Service B exists.</p></div>
+        <div class="card amber"><h3>Silent breaks</h3><p>Shared library change breaks three consumers undetected.</p></div>
+        <div class="card accent"><h3>Parallel drift</h3><p>Two agents modify the same contract independently.</p></div>
+        <div class="card violet"><h3>Interaction bugs</h3><p>Reviewer sees one diff; bug lives between services.</p></div>
+      </div>
+      <p class="subtitle reveal" style="margin-top:1.25rem">
+        Need an org-level <strong style="color:var(--cyan)">architecture layer</strong> — service inventory, dependency graph, cross-cutting conventions — partially auto-generated from API specs and import graphs.
+      </p>
+    </section>
+
+    <!-- SLIDE 11: Multi-repo gates -->
+    <section class="slide" data-chapter="multi">
+      <p class="eyebrow cyan reveal">Multi-Repo Gates</p>
+      <h2 class="reveal">Four gates that don't exist in single-repo</h2>
+      <div class="two-col reveal">
+        <div class="card cyan">
+          <h3>1 · Contract-first planning</h3>
+          <p>Declare API/event/schema changes upfront. Contracts locked before any engineer starts.</p>
+        </div>
+        <div class="card cyan">
+          <h3>2 · Sequenced parallel execution</h3>
+          <p>Engineers work in parallel — but dependent services wait until contracts are finalized.</p>
+        </div>
+        <div class="card accent">
+          <h3>3 · Cross-repo adversarial reviewer</h3>
+          <p>Reads all diffs together. Checks interface compatibility and missed consumers.</p>
+        </div>
+        <div class="card accent">
+          <h3>4 · Contract tests</h3>
+          <p>Consumer-driven tests against producer implementations — the cross-service quality floor.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 12: New agent -->
+    <section class="slide" data-chapter="multi">
+      <p class="eyebrow violet reveal">New Agent Required</p>
+      <h2 class="reveal">Contract Agent — locks interfaces before implementation</h2>
+      <div class="two-col reveal">
+        <div>
+          <p style="font-size:0.85rem;color:var(--muted);margin-bottom:1rem;font-weight:600;text-transform:uppercase;letter-spacing:0.06em">When invoked</p>
+          <ul class="bullets" style="gap:0.55rem">
+            <li style="font-size:0.88rem">PRD touches <strong>more than one repo</strong></li>
+            <li style="font-size:0.88rem">PRD touches a <strong>public API, event schema, or shared library</strong></li>
+            <li style="font-size:0.88rem">Skipped for purely internal single-repo changes</li>
+          </ul>
+          <p style="font-size:0.85rem;color:var(--muted);margin:1.25rem 0 0.5rem;font-weight:600;text-transform:uppercase;letter-spacing:0.06em">What it does NOT do</p>
+          <ul class="bullets rose" style="gap:0.45rem">
+            <li style="font-size:0.85rem">Write implementation code</li>
+            <li style="font-size:0.85rem">Review final diffs (Reviewer's job)</li>
+          </ul>
+        </div>
+        <div class="card violet">
+          <h3>Contract artifact output</h3>
+          <ul class="bullets" style="margin-top:0.75rem;gap:0.5rem">
+            <li style="font-size:0.85rem">Precise interface change (structured diff)</li>
+            <li style="font-size:0.85rem">Backward compatibility assessment</li>
+            <li style="font-size:0.85rem">List of all consuming services</li>
+          </ul>
+          <p style="margin-top:1rem;font-size:0.82rem;color:var(--muted);font-style:italic">Without it, parallel engineers make independent assumptions — mismatches surface only at integration.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 13: Multi-repo workflow -->
+    <section class="slide" data-chapter="multi">
+      <p class="eyebrow cyan reveal">Target Multi-Repo Workflow</p>
+      <h2 class="reveal">Extended pipeline — one new agent, parallel engineers</h2>
+      <div class="pipeline reveal">
+        <div class="pipe-node"><div class="circle">🎯</div><div class="label">Orchestrator</div></div>
+        <div class="pipe-arrow">→</div>
+        <div class="pipe-node"><div class="circle">📋</div><div class="label">Tech Lead</div><div class="sublabel">Cross-repo plan</div></div>
+        <div class="pipe-arrow">→</div>
+        <div class="pipe-node new"><div class="circle">📜</div><div class="label">Contract Agent</div><div class="sublabel"><span class="tag tag-new">New</span></div></div>
+        <div class="pipe-arrow">→</div>
+        <div class="pipe-parallel">
+          <div class="pipe-node"><div class="circle">⚙️</div><div class="label">Engineer</div></div>
+          <div class="pipe-node"><div class="circle">⚙️</div><div class="label">Engineer</div></div>
+        </div>
+        <div class="pipe-arrow">→</div>
+        <div class="pipe-node"><div class="circle">🔍</div><div class="label">Reviewer</div><div class="sublabel">All diffs</div></div>
+      </div>
+      <div class="three-col reveal" style="margin-top:1.25rem">
+        <div class="card"><h3>Orchestrator <span class="tag tag-now">Extended</span></h3><p>Parallel dispatch + contract gate enforcement</p></div>
+        <div class="card"><h3>Tech Lead <span class="tag tag-now">Extended</span></h3><p>System architecture doc + cross-repo plan</p></div>
+        <div class="card violet"><h3>Contract Agent <span class="tag tag-new">New</span></h3><p>Locks interface changes pre-implementation</p></div>
+      </div>
+    </section>
+
+    <!-- SLIDE 14: Sequencing -->
+    <section class="slide" data-chapter="multi">
+      <p class="eyebrow cyan reveal">Coordination Rules</p>
+      <h2 class="reveal">When does the Contract Agent run?</h2>
+      <table class="mini-table reveal">
+        <thead><tr><th>Scenario</th><th>Contract Agent</th><th>Engineer Agents</th></tr></thead>
+        <tbody>
+          <tr><td style="color:var(--text);font-weight:500">Single-repo, no public interface change</td><td>Skipped</td><td>One agent, starts immediately</td></tr>
+          <tr><td style="color:var(--text);font-weight:500">Single-repo, public interface change</td><td style="color:var(--violet)">Invoked</td><td>Starts after contract finalized</td></tr>
+          <tr><td style="color:var(--text);font-weight:500">Multi-repo, independent services</td><td>Skipped</td><td>All start in parallel immediately</td></tr>
+          <tr><td style="color:var(--text);font-weight:500">Multi-repo, shared contract change</td><td style="color:var(--violet)">Invoked</td><td>Dependent agents wait; independent start now</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- SLIDE 15: Harness evolution -->
+    <section class="slide" data-chapter="vision">
+      <p class="eyebrow violet reveal">Where We Want to Reach</p>
+      <h2 class="reveal">From prompt orchestration to harness engineering</h2>
+      <div class="vs-grid reveal">
+        <div class="vs-box before">
+          <h3>Today</h3>
+          <ul class="bullets" style="gap:0.5rem;margin-top:0.5rem">
+            <li style="font-size:0.85rem">Agents follow instructions; state is mostly a log</li>
+            <li style="font-size:0.85rem">Verification is binary: tests pass or fail</li>
+            <li style="font-size:0.85rem">Failures repeat across runs</li>
+          </ul>
+        </div>
+        <div class="vs-divider">→</div>
+        <div class="vs-box after">
+          <h3>Target</h3>
+          <ul class="bullets green" style="gap:0.5rem;margin-top:0.5rem">
+            <li style="font-size:0.85rem">Every approval carries <strong>evidence + untested regions</strong></li>
+            <li style="font-size:0.85rem">Scratchpad is <strong>versioned program state</strong> with commit pins</li>
+            <li style="font-size:0.85rem">Harness failures improve the system with <strong>regression discipline</strong></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 16: Roadmap -->
+    <section class="slide" data-chapter="vision">
+      <p class="eyebrow violet reveal">Implementation Roadmap</p>
+      <h2 class="reveal">Phased path from here to there</h2>
+      <div class="roadmap reveal">
+        <div class="road-item phase-now">
+          <div class="phase-label">Now</div>
+          <div><h4>Working eng-team pipeline</h4><p>Tech Lead → Engineer → Reviewer. CLAUDE.md bootstrapping. Diff-based review.</p></div>
+        </div>
+        <div class="road-item phase-1">
+          <div class="phase-label">Phase 1</div>
+          <div><h4>Single-repo quality gates</h4><p>Plan artifact, test enforcement, adversarial reviewer, evidence bundle on approve.</p></div>
+        </div>
+        <div class="road-item phase-2">
+          <div class="phase-label">Phase 2</div>
+          <div><h4>Harness hardening</h4><p>Scratchpad as program state, failure-type routing, harness telemetry, human gates as durable state.</p></div>
+        </div>
+        <div class="road-item phase-2">
+          <div class="phase-label">Phase 2</div>
+          <div><h4>Multi-repo extension</h4><p>System architecture doc, Contract Agent, sequenced parallel execution, contract tests.</p></div>
+        </div>
+        <div class="road-item phase-3">
+          <div class="phase-label">Phase 3</div>
+          <div><h4>Compounding trust</h4><p>Cross-task learnings, golden-repo regression tests, PRD Agent above Tech Lead.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 17: Journey summary -->
+    <section class="slide" data-chapter="vision">
+      <p class="eyebrow reveal">The Journey</p>
+      <h2 class="wide reveal" style="max-width:none">Today → Quality Gates → Multi-Repo → Harness Engineering</h2>
+      <div class="journey reveal" id="journey-bar">
+        <div class="journey-step done"><div class="dot"></div><div class="j-label">Working<br/>Pipeline</div></div>
+        <div class="journey-line"></div>
+        <div class="journey-step active"><div class="dot"></div><div class="j-label">Quality<br/>Gates</div></div>
+        <div class="journey-line"></div>
+        <div class="journey-step"><div class="dot"></div><div class="j-label">Multi-Repo<br/>+ Contract Agent</div></div>
+        <div class="journey-line"></div>
+        <div class="journey-step"><div class="dot"></div><div class="j-label">Harness<br/>Engineering</div></div>
+        <div class="journey-line"></div>
+        <div class="journey-step"><div class="dot"></div><div class="j-label">Trust<br/>Compounds Upward</div></div>
+      </div>
+      <div class="three-col reveal" style="margin-top:2.5rem">
+        <div class="card green"><h3>Not replacing engineers</h3><p>Automating the verifiable slice so humans focus on judgment.</p></div>
+        <div class="card accent"><h3>Not automating everything</h3><p>Narrow insertion point. One human gate stays.</p></div>
+        <div class="card cyan"><h3>Not a big-bang rollout</h3><p>Each phase earns trust before the next begins.</p></div>
+      </div>
+    </section>
+
+    <!-- SLIDE 18: Bottom line -->
+    <section class="slide" data-chapter="close">
+      <p class="eyebrow reveal">Bottom Line</p>
+      <h2 class="reveal">Trusted autonomous delivery is a harness problem, not a model problem</h2>
+      <ul class="bullets reveal" style="margin-top:0.5rem">
+        <li><strong>Today:</strong> eng-team delivers PRD → merge-ready PR with a proven three-agent pipeline</li>
+        <li><strong>Next:</strong> quality gates ensure agents stay on scope, produce verifiable output, and build human trust</li>
+        <li><strong>Then:</strong> Contract Agent + multi-repo gates extend the same philosophy across services</li>
+        <li><strong>Always:</strong> start verifiable, earn trust upward, keep the human intent gate</li>
+      </ul>
+      <div class="callout reveal" style="margin-top:2rem;border-color:var(--cyan);background:var(--cyan-soft)">
+        <p>The teams that build AI trust <strong>incrementally</strong> — starting with what's verifiable — will pull ahead of those that either ignore AI or try to automate everything at once.</p>
+      </div>
+    </section>
+
+    <!-- SLIDE 19: Thank you -->
+    <section class="slide" data-chapter="close">
+      <p class="eyebrow reveal">Discussion</p>
+      <h1 class="wide reveal" style="max-width:none;font-size:clamp(2.5rem,6vw,4rem)">Questions?</h1>
+      <p class="subtitle reveal">eng-team · Autonomous Engineering with Quality Gates</p>
+      <div class="stat-row reveal">
+        <div class="stat"><div class="num" style="font-size:1.5rem;color:var(--muted)">docs/quality-gates-guide.html</div><div class="label">Detailed quality gates reference</div></div>
+      </div>
+      <p class="subtitle reveal" style="margin-top:1.5rem;font-size:0.9rem">
+        Also: <span style="font-family:var(--mono);color:var(--accent)">docs/code-as-agent-harness.html</span> ·
+        <span style="font-family:var(--mono);color:var(--accent)">quality-gates.md</span> ·
+        <span style="font-family:var(--mono);color:var(--accent)">agents-multi-repo.md</span>
+      </p>
+    </section>
+
+  </div>
+
+  <!-- Controls -->
+  <div class="controls">
+    <button class="ctrl-btn" id="btn-prev" aria-label="Previous slide">← Prev</button>
+    <div class="progress-track"><div class="progress-fill" id="progress"></div></div>
+    <span class="slide-counter" id="counter">1 / 21</span>
+    <button class="ctrl-btn" id="btn-next" aria-label="Next slide">Next →</button>
+    <span class="hint"><kbd>←</kbd> <kbd>→</kbd> <kbd>Space</kbd></span>
+  </div>
+
+  <script>
+    const slides = [...document.querySelectorAll(".slide")];
+    const total = slides.length;
+    let current = 0;
+
+    const progress = document.getElementById("progress");
+    const counter = document.getElementById("counter");
+    const btnPrev = document.getElementById("btn-prev");
+    const btnNext = document.getElementById("btn-next");
+
+    function goTo(index) {
+      if (index < 0 || index >= total) return;
+      slides[current].classList.remove("active");
+      slides[current].classList.add("prev");
+      current = index;
+      slides.forEach((s, i) => {
+        s.classList.toggle("active", i === current);
+        s.classList.toggle("prev", i < current);
+      });
+      progress.style.width = `${((current + 1) / total) * 100}%`;
+      counter.textContent = `${current + 1} / ${total}`;
+      btnPrev.disabled = current === 0;
+      btnNext.disabled = current === total - 1;
+    }
+
+    function next() { goTo(current + 1); }
+    function prev() { goTo(current - 1); }
+
+    btnNext.addEventListener("click", next);
+    btnPrev.addEventListener("click", prev);
+
+    document.addEventListener("keydown", e => {
+      if (e.key === "ArrowRight" || e.key === " " || e.key === "PageDown") {
+        e.preventDefault();
+        next();
+      } else if (e.key === "ArrowLeft" || e.key === "PageUp" || e.key === "Backspace") {
+        e.preventDefault();
+        prev();
+      } else if (e.key === "Home") {
+        e.preventDefault();
+        goTo(0);
+      } else if (e.key === "End") {
+        e.preventDefault();
+        goTo(total - 1);
+      } else if (e.key === "f" || e.key === "F") {
+        if (!document.fullscreenElement) {
+          document.documentElement.requestFullscreen?.();
+        } else {
+          document.exitFullscreen?.();
+        }
+      }
+    });
+
+    // Touch swipe
+    let touchStartX = 0;
+    document.addEventListener("touchstart", e => { touchStartX = e.changedTouches[0].screenX; }, { passive: true });
+    document.addEventListener("touchend", e => {
+      const diff = touchStartX - e.changedTouches[0].screenX;
+      if (Math.abs(diff) > 50) diff > 0 ? next() : prev();
+    }, { passive: true });
+
+    // Click right/left thirds to advance (presentation mode)
+    document.getElementById("deck").addEventListener("click", e => {
+      if (e.target.closest(".ctrl-btn")) return;
+      const x = e.clientX / window.innerWidth;
+      if (x > 0.65) next();
+      else if (x < 0.2) prev();
+    });
+
+    goTo(0);
+  </script>
+</body>
+</html>
