@@ -1,0 +1,1579 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Eng-Team Quality Gates & Multi-Repo Architecture</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0c0f14;
+      --bg-elevated: #141922;
+      --bg-card: #1a2030;
+      --bg-hover: #222a3d;
+      --border: #2a3348;
+      --text: #e8ecf4;
+      --text-muted: #8b95a8;
+      --accent: #3b9eff;
+      --accent-dim: rgba(59, 158, 255, 0.12);
+      --accent-glow: rgba(59, 158, 255, 0.35);
+      --success: #34d399;
+      --success-dim: rgba(52, 211, 153, 0.12);
+      --warning: #fbbf24;
+      --warning-dim: rgba(251, 191, 36, 0.12);
+      --danger: #f87171;
+      --danger-dim: rgba(248, 113, 113, 0.12);
+      --purple: #a78bfa;
+      --purple-dim: rgba(167, 139, 250, 0.12);
+      --radius: 12px;
+      --radius-sm: 8px;
+      --shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+      --font: "DM Sans", system-ui, sans-serif;
+      --mono: "JetBrains Mono", ui-monospace, monospace;
+      --nav-width: 260px;
+      --transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; scroll-padding-top: 2rem; }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    /* Ambient background */
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 80% 50% at 20% -10%, rgba(59, 158, 255, 0.08), transparent),
+        radial-gradient(ellipse 60% 40% at 90% 10%, rgba(167, 139, 250, 0.06), transparent),
+        radial-gradient(ellipse 50% 30% at 50% 100%, rgba(52, 211, 153, 0.04), transparent);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .layout {
+      display: flex;
+      min-height: 100vh;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Sidebar nav */
+    nav.sidebar {
+      width: var(--nav-width);
+      flex-shrink: 0;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+      border-right: 1px solid var(--border);
+      background: rgba(12, 15, 20, 0.85);
+      backdrop-filter: blur(12px);
+      padding: 1.5rem 0;
+    }
+
+    nav .logo {
+      padding: 0 1.25rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 1rem;
+    }
+
+    nav .logo h1 {
+      font-size: 0.95rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      line-height: 1.3;
+    }
+
+    nav .logo p {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 0.35rem;
+    }
+
+    nav ul { list-style: none; }
+
+    nav a {
+      display: block;
+      padding: 0.55rem 1.25rem;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      text-decoration: none;
+      border-left: 2px solid transparent;
+      transition: var(--transition);
+    }
+
+    nav a:hover { color: var(--text); background: var(--bg-hover); }
+    nav a.active {
+      color: var(--accent);
+      border-left-color: var(--accent);
+      background: var(--accent-dim);
+    }
+
+    nav .nav-group {
+      font-size: 0.65rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      padding: 1rem 1.25rem 0.4rem;
+      opacity: 0.7;
+    }
+
+    /* Main content */
+    main {
+      flex: 1;
+      max-width: 960px;
+      padding: 2.5rem 2.5rem 4rem;
+    }
+
+    section { margin-bottom: 4rem; scroll-margin-top: 1rem; }
+
+    .hero {
+      margin-bottom: 3rem;
+      padding-bottom: 2rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .hero .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--accent);
+      background: var(--accent-dim);
+      border: 1px solid rgba(59, 158, 255, 0.25);
+      padding: 0.3rem 0.65rem;
+      border-radius: 999px;
+      margin-bottom: 1rem;
+    }
+
+    .hero h2 {
+      font-size: 2.25rem;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      line-height: 1.15;
+      margin-bottom: 0.75rem;
+    }
+
+    .hero .lead {
+      font-size: 1.1rem;
+      color: var(--text-muted);
+      max-width: 640px;
+    }
+
+    h3.section-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.5rem;
+    }
+
+    .section-desc {
+      color: var(--text-muted);
+      margin-bottom: 1.75rem;
+      max-width: 680px;
+    }
+
+    /* Failure mode cards */
+    .failure-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 0.75rem;
+      margin-bottom: 2rem;
+    }
+
+    .failure-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1rem 1.1rem;
+      cursor: pointer;
+      transition: var(--transition);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .failure-card::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: var(--card-accent, var(--danger));
+      opacity: 0;
+      transition: var(--transition);
+    }
+
+    .failure-card:hover, .failure-card.active {
+      border-color: var(--card-accent, var(--danger));
+      transform: translateY(-2px);
+      box-shadow: var(--shadow);
+    }
+
+    .failure-card.active::before { opacity: 1; }
+
+    .failure-card .icon { font-size: 1.25rem; margin-bottom: 0.5rem; }
+    .failure-card h4 { font-size: 0.9rem; font-weight: 600; margin-bottom: 0.35rem; }
+    .failure-card p { font-size: 0.8rem; color: var(--text-muted); line-height: 1.45; }
+
+    .failure-detail {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 2rem;
+      display: none;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .failure-detail.visible { display: block; }
+
+    .failure-detail h4 { font-size: 0.95rem; margin-bottom: 0.5rem; color: var(--accent); }
+    .failure-detail p { font-size: 0.875rem; color: var(--text-muted); }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Stage timeline */
+    .stage-timeline {
+      display: flex;
+      gap: 0;
+      margin-bottom: 1.5rem;
+      overflow-x: auto;
+      padding-bottom: 0.5rem;
+    }
+
+    .stage-tab {
+      flex: 1;
+      min-width: 120px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      padding: 0.85rem 1rem;
+      cursor: pointer;
+      transition: var(--transition);
+      text-align: center;
+      position: relative;
+    }
+
+    .stage-tab:first-child { border-radius: var(--radius) 0 0 var(--radius); }
+    .stage-tab:last-child { border-radius: 0 var(--radius) var(--radius) 0; }
+    .stage-tab + .stage-tab { border-left: none; }
+
+    .stage-tab .num {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 1.5rem;
+      height: 1.5rem;
+      border-radius: 50%;
+      background: var(--bg);
+      font-size: 0.7rem;
+      font-weight: 700;
+      margin-bottom: 0.35rem;
+      color: var(--text-muted);
+      transition: var(--transition);
+    }
+
+    .stage-tab .label {
+      display: block;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      transition: var(--transition);
+    }
+
+    .stage-tab:hover { background: var(--bg-hover); }
+    .stage-tab.active {
+      background: var(--accent-dim);
+      border-color: var(--accent);
+      z-index: 1;
+    }
+    .stage-tab.active .num { background: var(--accent); color: #fff; }
+    .stage-tab.active .label { color: var(--accent); }
+
+    .stage-panel {
+      display: none;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .stage-panel.active { display: block; }
+
+    .stage-panel h4 {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .stage-panel ul {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+
+    .stage-panel li {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      padding-left: 1.25rem;
+      position: relative;
+    }
+
+    .stage-panel li::before {
+      content: "→";
+      position: absolute;
+      left: 0;
+      color: var(--accent);
+      font-size: 0.8rem;
+    }
+
+    .stage-panel li strong { color: var(--text); }
+
+    /* Checklist items */
+    .checklist {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+
+    .check-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.65rem;
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      padding: 0.6rem 0.85rem;
+      background: var(--bg-elevated);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: var(--transition);
+      user-select: none;
+    }
+
+    .check-item:hover { background: var(--bg-hover); }
+
+    .check-item .box {
+      width: 1.1rem;
+      height: 1.1rem;
+      border: 2px solid var(--border);
+      border-radius: 4px;
+      flex-shrink: 0;
+      margin-top: 0.15rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: var(--transition);
+    }
+
+    .check-item.checked .box {
+      background: var(--success);
+      border-color: var(--success);
+    }
+
+    .check-item.checked .box::after {
+      content: "✓";
+      color: #fff;
+      font-size: 0.65rem;
+      font-weight: 700;
+    }
+
+    .check-item.checked { color: var(--text); opacity: 0.7; }
+
+    /* Priority table */
+    .priority-table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      font-size: 0.85rem;
+      margin-top: 1rem;
+    }
+
+    .priority-table th {
+      text-align: left;
+      padding: 0.75rem 1rem;
+      background: var(--bg-elevated);
+      color: var(--text-muted);
+      font-weight: 600;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .priority-table th:first-child { border-radius: var(--radius-sm) 0 0 0; }
+    .priority-table th:last-child { border-radius: 0 var(--radius-sm) 0 0; }
+
+    .priority-table td {
+      padding: 0.85rem 1rem;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg-card);
+      transition: var(--transition);
+    }
+
+    .priority-table tr:hover td { background: var(--bg-hover); }
+
+    .priority-table .prio {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 1.75rem;
+      height: 1.75rem;
+      border-radius: 50%;
+      font-weight: 700;
+      font-size: 0.75rem;
+    }
+
+    .prio-1 { background: var(--accent-dim); color: var(--accent); }
+    .prio-2 { background: var(--purple-dim); color: var(--purple); }
+    .prio-3 { background: var(--success-dim); color: var(--success); }
+    .prio-4 { background: var(--warning-dim); color: var(--warning); }
+    .prio-5, .prio-6, .prio-7 { background: rgba(139, 149, 168, 0.15); color: var(--text-muted); }
+
+    /* Workflow diagram */
+    .workflow {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 2rem 1.5rem;
+      margin: 1.5rem 0;
+      overflow-x: auto;
+    }
+
+    .workflow-steps {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0;
+      min-width: 600px;
+    }
+
+    .wf-node {
+      flex-shrink: 0;
+      text-align: center;
+      cursor: pointer;
+      transition: var(--transition);
+      padding: 0.5rem;
+      border-radius: var(--radius-sm);
+    }
+
+    .wf-node:hover, .wf-node.active { background: var(--accent-dim); }
+
+    .wf-node .circle {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+      margin: 0 auto 0.5rem;
+      border: 2px solid var(--border);
+      background: var(--bg-elevated);
+      transition: var(--transition);
+    }
+
+    .wf-node.active .circle {
+      border-color: var(--accent);
+      box-shadow: 0 0 20px var(--accent-glow);
+      background: var(--accent-dim);
+    }
+
+    .wf-node.contract .circle { border-color: var(--purple); }
+    .wf-node.contract.active .circle {
+      border-color: var(--purple);
+      box-shadow: 0 0 20px rgba(167, 139, 250, 0.35);
+      background: var(--purple-dim);
+    }
+
+    .wf-node .name {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      transition: var(--transition);
+    }
+
+    .wf-node.active .name { color: var(--text); }
+
+    .wf-arrow {
+      flex-shrink: 0;
+      color: var(--border);
+      font-size: 1.25rem;
+      padding: 0 0.25rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .wf-parallel {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+      align-items: center;
+    }
+
+    .wf-parallel .wf-node .circle {
+      width: 44px;
+      height: 44px;
+      font-size: 1rem;
+    }
+
+    .wf-detail {
+      margin-top: 1.25rem;
+      padding: 1.25rem;
+      background: var(--bg-elevated);
+      border-radius: var(--radius-sm);
+      border-left: 3px solid var(--accent);
+      display: none;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .wf-detail.visible { display: block; }
+    .wf-detail.contract-detail { border-left-color: var(--purple); }
+
+    .wf-detail h4 { font-size: 0.95rem; margin-bottom: 0.5rem; }
+    .wf-detail p, .wf-detail li { font-size: 0.85rem; color: var(--text-muted); }
+    .wf-detail ul { margin-top: 0.5rem; padding-left: 1.25rem; }
+
+    /* Sequencing matrix */
+    .matrix-controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .matrix-btn {
+      font-family: var(--font);
+      font-size: 0.78rem;
+      padding: 0.45rem 0.85rem;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .matrix-btn:hover { border-color: var(--accent); color: var(--text); }
+    .matrix-btn.active {
+      background: var(--accent-dim);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .matrix-result {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.25rem 1.5rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    @media (max-width: 600px) {
+      .matrix-result { grid-template-columns: 1fr; }
+    }
+
+    .matrix-result .result-block h5 {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+      margin-bottom: 0.4rem;
+    }
+
+    .matrix-result .result-block .value {
+      font-size: 0.95rem;
+      font-weight: 600;
+    }
+
+    .matrix-result .result-block .value.yes { color: var(--purple); }
+    .matrix-result .result-block .value.no { color: var(--success); }
+    .matrix-result .result-block .value.wait { color: var(--warning); }
+    .matrix-result .result-block .value.parallel { color: var(--accent); }
+
+    /* Agent cards */
+    .agent-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1rem;
+      margin: 1.5rem 0;
+    }
+
+    .agent-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      transition: var(--transition);
+    }
+
+    .agent-card:hover { border-color: rgba(59, 158, 255, 0.4); }
+
+    .agent-card.new { border-color: rgba(167, 139, 250, 0.4); }
+
+    .agent-card .header {
+      padding: 1rem 1.15rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .agent-card .header .emoji { font-size: 1.5rem; }
+
+    .agent-card .header h4 {
+      font-size: 0.95rem;
+      font-weight: 600;
+      flex: 1;
+    }
+
+    .agent-card .header .tag {
+      font-size: 0.65rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 0.2rem 0.5rem;
+      border-radius: 999px;
+    }
+
+    .tag-extended { background: var(--accent-dim); color: var(--accent); }
+    .tag-new { background: var(--purple-dim); color: var(--purple); }
+
+    .agent-card .body {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.35s ease;
+    }
+
+    .agent-card.open .body { max-height: 600px; }
+
+    .agent-card .body-inner {
+      padding: 0 1.15rem 1.15rem;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .agent-card .body-inner ul {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    .agent-card .body-inner li {
+      padding-left: 1rem;
+      position: relative;
+    }
+
+    .agent-card .body-inner li::before {
+      content: "•";
+      position: absolute;
+      left: 0;
+      color: var(--accent);
+    }
+
+    .agent-card.new .body-inner li::before { color: var(--purple); }
+
+    .chevron {
+      transition: transform 0.3s ease;
+      color: var(--text-muted);
+      font-size: 0.75rem;
+    }
+
+    .agent-card.open .chevron { transform: rotate(180deg); }
+
+    /* Multi-repo failure cards */
+    .multi-failures {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 0.75rem;
+      margin: 1.5rem 0;
+    }
+
+    .multi-fail {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1rem;
+      border-top: 3px solid var(--warning);
+    }
+
+    .multi-fail h5 { font-size: 0.85rem; font-weight: 600; margin-bottom: 0.35rem; }
+    .multi-fail p { font-size: 0.8rem; color: var(--text-muted); }
+
+    /* Gate cards for multi-repo */
+    .gate-cards {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      margin: 1.5rem 0;
+    }
+
+    .gate-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 0;
+      overflow: hidden;
+    }
+
+    .gate-card summary {
+      padding: 1rem 1.25rem;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.9rem;
+      list-style: none;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      transition: var(--transition);
+      user-select: none;
+    }
+
+    .gate-card summary::-webkit-details-marker { display: none; }
+
+    .gate-card summary:hover { background: var(--bg-hover); }
+
+    .gate-card summary .gate-num {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 1.75rem;
+      height: 1.75rem;
+      border-radius: 50%;
+      background: var(--accent-dim);
+      color: var(--accent);
+      font-size: 0.75rem;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .gate-card summary::after {
+      content: "+";
+      margin-left: auto;
+      font-size: 1.1rem;
+      color: var(--text-muted);
+      transition: var(--transition);
+    }
+
+    .gate-card[open] summary::after { content: "−"; color: var(--accent); }
+
+    .gate-card .gate-body {
+      padding: 0 1.25rem 1.25rem;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      border-top: 1px solid var(--border);
+      padding-top: 1rem;
+      margin: 0 1.25rem 1.25rem;
+    }
+
+    /* Callout */
+    .callout {
+      background: var(--warning-dim);
+      border: 1px solid rgba(251, 191, 36, 0.25);
+      border-radius: var(--radius);
+      padding: 1.15rem 1.35rem;
+      margin: 1.5rem 0;
+    }
+
+    .callout h4 {
+      font-size: 0.9rem;
+      color: var(--warning);
+      margin-bottom: 0.4rem;
+    }
+
+    .callout p { font-size: 0.85rem; color: var(--text-muted); }
+
+    /* Summary box */
+    .summary-box {
+      background: linear-gradient(135deg, var(--accent-dim), var(--purple-dim));
+      border: 1px solid rgba(59, 158, 255, 0.2);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      margin-top: 2rem;
+    }
+
+    .summary-box h4 { font-size: 1rem; margin-bottom: 0.75rem; }
+    .summary-box ul { list-style: none; display: flex; flex-direction: column; gap: 0.5rem; }
+    .summary-box li {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      padding-left: 1.25rem;
+      position: relative;
+    }
+    .summary-box li::before {
+      content: "✦";
+      position: absolute;
+      left: 0;
+      color: var(--accent);
+      font-size: 0.7rem;
+    }
+    .summary-box li strong { color: var(--text); }
+
+    /* Progress bar for checklist section */
+    .progress-bar-wrap {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .progress-bar {
+      flex: 1;
+      height: 6px;
+      background: var(--bg-elevated);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .progress-bar .fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), var(--success));
+      border-radius: 999px;
+      transition: width 0.4s ease;
+      width: 0%;
+    }
+
+    /* Mobile */
+    @media (max-width: 768px) {
+      .layout { flex-direction: column; }
+      nav.sidebar {
+        width: 100%;
+        height: auto;
+        position: relative;
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+        padding: 1rem 0;
+      }
+      nav ul {
+        display: flex;
+        overflow-x: auto;
+        padding: 0 0.5rem;
+        gap: 0.25rem;
+      }
+      nav .nav-group { display: none; }
+      nav a {
+        white-space: nowrap;
+        border-left: none;
+        border-bottom: 2px solid transparent;
+        border-radius: var(--radius-sm);
+        padding: 0.5rem 0.85rem;
+      }
+      nav a.active { border-bottom-color: var(--accent); border-left-color: transparent; }
+      nav .logo { padding-bottom: 1rem; }
+      main { padding: 1.5rem 1.25rem 3rem; }
+      .hero h2 { font-size: 1.65rem; }
+      .stage-timeline { flex-wrap: nowrap; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+      }
+      html { scroll-behavior: auto; }
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <nav class="sidebar" aria-label="Page navigation">
+      <div class="logo">
+        <h1>Eng-Team Architecture</h1>
+        <p>Quality gates & multi-repo agents</p>
+      </div>
+      <div class="nav-group">Overview</div>
+      <ul>
+        <li><a href="#overview" class="active">Introduction</a></li>
+      </ul>
+      <div class="nav-group">Single Repo</div>
+      <ul>
+        <li><a href="#failure-modes">Failure Modes</a></li>
+        <li><a href="#stages">Quality Gate Stages</a></li>
+        <li><a href="#reviewer">Adversarial Reviewer</a></li>
+        <li><a href="#priority">Implementation Priority</a></li>
+      </ul>
+      <div class="nav-group">Multi-Repo</div>
+      <ul>
+        <li><a href="#multi-context">System Context</a></li>
+        <li><a href="#multi-gates">Multi-Repo Gates</a></li>
+        <li><a href="#agents">Agent Workflow</a></li>
+        <li><a href="#sequencing">Sequencing Rules</a></li>
+      </ul>
+    </nav>
+
+    <main>
+      <!-- Hero -->
+      <header class="hero" id="overview">
+        <span class="badge">May 2026 · Architectural Guide</span>
+        <h2>Quality Gates for Autonomous Engineering Teams</h2>
+        <p class="lead">
+          How to ensure eng-team agents produce high-quality code, stay on scope, and build human trust in AI-generated PRs — extended for microservices and multi-repo environments.
+        </p>
+      </header>
+
+      <!-- Failure Modes -->
+      <section id="failure-modes">
+        <h3 class="section-title">Why AI Code Quality Degrades</h3>
+        <p class="section-desc">
+          Before picking gates, name the failure modes. Each gate in this system targets one or more root causes. Click a card to see which gates address it.
+        </p>
+
+        <div class="failure-grid">
+          <div class="failure-card active" data-failure="context" style="--card-accent: #f87171">
+            <div class="icon">🔍</div>
+            <h4>Too Little Context</h4>
+            <p>Agent invents patterns because it doesn't know repo conventions.</p>
+          </div>
+          <div class="failure-card" data-failure="scope" style="--card-accent: #fbbf24">
+            <div class="icon">📈</div>
+            <h4>Scope Discipline</h4>
+            <p>Nothing stops over-engineering when there's no plan boundary.</p>
+          </div>
+          <div class="failure-card" data-failure="verify" style="--card-accent: #3b9eff">
+            <div class="icon">🔄</div>
+            <h4>No Verification Loop</h4>
+            <p>Code is handed off without checking if it works or matches intent.</p>
+          </div>
+          <div class="failure-card" data-failure="review" style="--card-accent: #a78bfa">
+            <div class="icon">🪞</div>
+            <h4>No Adversarial Review</h4>
+            <p>The same agent that wrote the code also "reviewed" it.</p>
+          </div>
+        </div>
+
+        <div class="failure-detail visible" id="failure-detail">
+          <h4 id="failure-detail-title">Addressed by: CLAUDE.md + Plan Artifact</h4>
+          <p id="failure-detail-body">
+            A well-maintained <strong>CLAUDE.md</strong> acts as a constitution all agents must read and cite. The <strong>plan artifact</strong> (files to change, LOC estimate, approach mapped to acceptance criteria) surfaces risks before any code is written.
+          </p>
+        </div>
+      </section>
+
+      <!-- Stages -->
+      <section id="stages">
+        <h3 class="section-title">Five Stages of Quality Gates</h3>
+        <p class="section-desc">
+          No single gate is sufficient — failure modes differ at each stage. Explore each stage to see what happens and when.
+        </p>
+
+        <div class="stage-timeline" role="tablist">
+          <button class="stage-tab active" data-stage="1" role="tab" aria-selected="true">
+            <span class="num">1</span>
+            <span class="label">Pre-flight</span>
+          </button>
+          <button class="stage-tab" data-stage="2" role="tab">
+            <span class="num">2</span>
+            <span class="label">In-flight</span>
+          </button>
+          <button class="stage-tab" data-stage="3" role="tab">
+            <span class="num">3</span>
+            <span class="label">Post-impl</span>
+          </button>
+          <button class="stage-tab" data-stage="4" role="tab">
+            <span class="num">4</span>
+            <span class="label">Reviewer</span>
+          </button>
+          <button class="stage-tab" data-stage="5" role="tab">
+            <span class="num">5</span>
+            <span class="label">Trust Loop</span>
+          </button>
+        </div>
+
+        <div class="stage-panel active" data-panel="1">
+          <h4>✈️ Stage 1 — Pre-flight (Before a Line Is Written)</h4>
+          <p style="font-size:0.875rem;color:var(--text-muted);margin-bottom:1rem;">
+            The highest-leverage point. The agent produces a <strong>plan artifact</strong> before implementation.
+          </p>
+          <ul>
+            <li><strong>Scope reasonableness</strong> — flag if file/LOC count exceeds threshold for a small feature</li>
+            <li><strong>Repo structure alignment</strong> — plan follows module boundaries, naming, and patterns from CLAUDE.md</li>
+            <li><strong>Test-first commitment</strong> — agent declares tests before writing implementation</li>
+          </ul>
+        </div>
+
+        <div class="stage-panel" data-panel="2">
+          <h4>⚡ Stage 2 — In-flight Controls (While Implementing)</h4>
+          <ul>
+            <li><strong>Incremental commits</strong> — each logical chunk (function, schema, component) is a discrete commit for auditable diffs</li>
+            <li><strong>Self-critique step</strong> — after each unit, agent asks: minimum change? follows existing patterns? anything outside PRD?</li>
+          </ul>
+          <p style="font-size:0.8rem;color:var(--text-muted);margin-top:1rem;font-style:italic;">
+            Catching drift mid-implementation is dramatically cheaper than at review.
+          </p>
+        </div>
+
+        <div class="stage-panel" data-panel="3">
+          <h4>🛡️ Stage 3 — Post-implementation Gates (Before PR Opens)</h4>
+          <ul>
+            <li><strong>Tests must pass</strong> — full suite, enforced mechanically</li>
+            <li><strong>Diff coverage</strong> — thresholds apply to the diff, not just overall repo coverage</li>
+            <li><strong>Static analysis</strong> — TypeScript strict, ESLint, formatters at zero-tolerance</li>
+            <li><strong>Diff size audit</strong> — compare PR size against PRD complexity</li>
+            <li><strong>Blast radius check</strong> — flag unexpected changes to shared utilities or config</li>
+          </ul>
+        </div>
+
+        <div class="stage-panel" data-panel="4">
+          <h4>🔬 Stage 4 — Adversarial Reviewer Agent</h4>
+          <p style="font-size:0.875rem;color:var(--text-muted);margin-bottom:1rem;">
+            <strong style="color:var(--danger)">The agent that writes code must never be the sole reviewer.</strong>
+          </p>
+          <ul>
+            <li>Separate agent with fresh context reads PRD + diff</li>
+            <li>Structured checklist: acceptance criteria covered? extra code? pattern divergence? edge cases?</li>
+            <li>Output: structured review report attached to the PR for human reviewers</li>
+          </ul>
+        </div>
+
+        <div class="stage-panel" data-panel="5">
+          <h4>📈 Stage 5 — Building Trust Over Time</h4>
+          <ul>
+            <li><strong>Capture human corrections</strong> — every human edit becomes an annotated example or CLAUDE.md update</li>
+            <li><strong>Retrospective evals</strong> — sample merged AI PRs, ask fresh agent to re-implement; divergence signals drift</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- Reviewer checklist -->
+      <section id="reviewer">
+        <h3 class="section-title">Adversarial Reviewer Checklist</h3>
+        <p class="section-desc">
+          Interactive checklist the Reviewer agent runs against every PR. Click items to track — this simulates the structured review report.
+        </p>
+
+        <div class="progress-bar-wrap">
+          <span>Review progress</span>
+          <div class="progress-bar"><div class="fill" id="review-progress"></div></div>
+          <span id="review-count">0 / 5</span>
+        </div>
+
+        <div class="checklist" id="review-checklist">
+          <label class="check-item"><span class="box"></span>Does every acceptance criterion have corresponding code and a test?</label>
+          <label class="check-item"><span class="box"></span>Is there any code that wasn't required by the PRD?</label>
+          <label class="check-item"><span class="box"></span>Are there patterns that diverge from the existing codebase?</label>
+          <label class="check-item"><span class="box"></span>Are there obvious edge cases not handled?</label>
+          <label class="check-item"><span class="box"></span>Is the PR description accurate and complete?</label>
+        </div>
+      </section>
+
+      <!-- Priority -->
+      <section id="priority">
+        <h3 class="section-title">Implementation Priority (Single Repo)</h3>
+        <p class="section-desc">Implement in this order for the best return on investment.</p>
+
+        <table class="priority-table">
+          <thead>
+            <tr>
+              <th>Priority</th>
+              <th>Gate</th>
+              <th>What It Addresses</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td><span class="prio prio-1">1</span></td><td>CLAUDE.md with explicit conventions</td><td>Gives agents repo context</td></tr>
+            <tr><td><span class="prio prio-2">2</span></td><td>Plan artifact + scope check</td><td>Catches over-engineering before it happens</td></tr>
+            <tr><td><span class="prio prio-3">3</span></td><td>Full test suite enforcement</td><td>Sets a non-negotiable quality floor</td></tr>
+            <tr><td><span class="prio prio-4">4</span></td><td>Adversarial reviewer agent</td><td>Builds human trust most directly</td></tr>
+            <tr><td><span class="prio prio-5">5</span></td><td>Diff size + blast radius audit</td><td>Catches subtle scope creep</td></tr>
+            <tr><td><span class="prio prio-6">6</span></td><td>Feedback capture loop</td><td>Compounds quality improvements over time</td></tr>
+          </tbody>
+        </table>
+
+        <div class="summary-box">
+          <h4>The Winning Combination</h4>
+          <ul>
+            <li>A strong <strong>pre-flight</strong> (scope discipline + plan artifact)</li>
+            <li><strong>Mechanical post-implementation gates</strong> (tests, linting, diff audit)</li>
+            <li>An <strong>adversarial reviewer</strong> (independent judgment on correctness and fit)</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- Multi-repo context -->
+      <section id="multi-context">
+        <h3 class="section-title">Why Single-Repo Gates Aren't Enough</h3>
+        <p class="section-desc">
+          In microservices, failure modes multiply. Each repo keeps its own CLAUDE.md, but multi-repo changes need an org-level architecture layer.
+        </p>
+
+        <div class="multi-failures">
+          <div class="multi-fail">
+            <h5>Blind to Service B</h5>
+            <p>Agent has full context on Service A but no idea Service B exists.</p>
+          </div>
+          <div class="multi-fail">
+            <h5>Silent Schema Breaks</h5>
+            <p>A shared library change silently breaks three consumers.</p>
+          </div>
+          <div class="multi-fail">
+            <h5>Parallel Contract Drift</h5>
+            <p>Two engineers modify overlapping contracts with no coordination.</p>
+          </div>
+          <div class="multi-fail">
+            <h5>Interaction Bugs</h5>
+            <p>Reviewer sees one diff; the bug lives between two services.</p>
+          </div>
+        </div>
+
+        <div class="callout">
+          <h4>System-Level Context Layer</h4>
+          <p>
+            Partially auto-generated from API specs, import graphs, and event bus subscriptions — not a hand-maintained wiki.
+            Covers service inventory, dependency graph, and cross-cutting conventions (auth, errors, events).
+          </p>
+        </div>
+      </section>
+
+      <!-- Multi-repo gates -->
+      <section id="multi-gates">
+        <h3 class="section-title">Multi-Repo Quality Gates</h3>
+        <p class="section-desc">Four additional gates that don't exist in the single-repo model. Expand each to learn more.</p>
+
+        <div class="gate-cards">
+          <details class="gate-card" open>
+            <summary><span class="gate-num">1</span> Contract-First Planning</summary>
+            <div class="gate-body">
+              The tech-lead's plan must answer: <em>which service boundaries does this change cross?</em>
+              Any API contract, event schema, or shared type change is declared upfront — before any engineer starts.
+              Enforces <strong>contracts first, implementations second.</strong>
+            </div>
+          </details>
+          <details class="gate-card">
+            <summary><span class="gate-num">2</span> Sequenced Parallel Execution</summary>
+            <div class="gate-body">
+              Multiple engineer agents work in parallel — but only after the contract is settled.
+              <strong>No agent touches a dependent service until the contract change is finalized.</strong>
+              Violating this means independent assumptions that only surface at integration time.
+            </div>
+          </details>
+          <details class="gate-card">
+            <summary><span class="gate-num">3</span> Cross-Repo Adversarial Reviewer</summary>
+            <div class="gate-body">
+              Reads all diffs together. Checks backward compatibility, whether Service B's usage matches Service A's implementation,
+              and whether any calling service was missed. Requires the dependency graph — blast radius can't be discovered from diffs alone.
+            </div>
+          </details>
+          <details class="gate-card">
+            <summary><span class="gate-num">4</span> Contract Tests as Quality Floor</summary>
+            <div class="gate-body">
+              In multi-repo, <strong>contract tests</strong> replace the single-repo test suite as the cross-service quality floor.
+              Consumer-driven tests against the producer's implementation — the only automated check for interface mismatches.
+            </div>
+          </details>
+        </div>
+
+        <table class="priority-table" style="margin-top:2rem">
+          <thead>
+            <tr>
+              <th>Priority</th>
+              <th>Gate</th>
+              <th>What It Addresses</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td><span class="prio prio-1">1</span></td><td>System-level architecture document</td><td>Cross-service context</td></tr>
+            <tr><td><span class="prio prio-2">2</span></td><td>Per-repo CLAUDE.md</td><td>Local conventions</td></tr>
+            <tr><td><span class="prio prio-3">3</span></td><td>Contract-first plan artifact</td><td>Incompatible parallel implementations</td></tr>
+            <tr><td><span class="prio prio-4">4</span></td><td>Sequenced parallel execution</td><td>Contract-before-consumer ordering</td></tr>
+            <tr><td><span class="prio prio-5">5</span></td><td>Test suite + contract tests</td><td>Automated quality floor</td></tr>
+            <tr><td><span class="prio prio-6">6</span></td><td>Cross-repo adversarial reviewer</td><td>Interface mismatches across diffs</td></tr>
+            <tr><td><span class="prio prio-7">7</span></td><td>Feedback capture loop</td><td>Compounding quality over time</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- Agents workflow -->
+      <section id="agents">
+        <h3 class="section-title">Multi-Repo Agent Workflow</h3>
+        <p class="section-desc">
+          One new agent (Contract Agent) fills the gap for locking interface changes. Everything else is extended, not replaced.
+          Click each node to explore its role.
+        </p>
+
+        <div class="workflow">
+          <div class="workflow-steps">
+            <div class="wf-node active" data-agent="orchestrator">
+              <div class="circle">🎯</div>
+              <div class="name">Orchestrator</div>
+            </div>
+            <div class="wf-arrow">→</div>
+            <div class="wf-node" data-agent="tech-lead">
+              <div class="circle">📋</div>
+              <div class="name">Tech Lead</div>
+            </div>
+            <div class="wf-arrow">→</div>
+            <div class="wf-node contract" data-agent="contract">
+              <div class="circle">📜</div>
+              <div class="name">Contract Agent</div>
+            </div>
+            <div class="wf-arrow">→</div>
+            <div class="wf-parallel">
+              <div class="wf-node" data-agent="engineer">
+                <div class="circle">⚙️</div>
+                <div class="name">Engineer ×N</div>
+              </div>
+            </div>
+            <div class="wf-arrow">→</div>
+            <div class="wf-node" data-agent="reviewer">
+              <div class="circle">🔍</div>
+              <div class="name">Reviewer</div>
+            </div>
+          </div>
+
+          <div class="wf-detail visible" id="wf-detail">
+            <h4 id="wf-detail-title">Orchestrator (extended)</h4>
+            <p id="wf-detail-desc">Drives the full pipeline with two behavioral additions for multi-repo:</p>
+            <ul id="wf-detail-list">
+              <li>Parallel engineer dispatch — one Engineer agent per repo</li>
+              <li>Contract gate enforcement — blocks dependent engineers until contract is finalized</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="agent-grid">
+          <div class="agent-card open">
+            <div class="header" tabindex="0">
+              <span class="emoji">🎯</span>
+              <h4>Orchestrator</h4>
+              <span class="tag tag-extended">Extended</span>
+              <span class="chevron">▼</span>
+            </div>
+            <div class="body">
+              <div class="body-inner">
+                <ul>
+                  <li>Parallel engineer dispatch across repos</li>
+                  <li>Contract gate enforcement before dependent engineers start</li>
+                  <li>No new agent — logic and configuration extension</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div class="agent-card">
+            <div class="header" tabindex="0">
+              <span class="emoji">📋</span>
+              <h4>Tech Lead</h4>
+              <span class="tag tag-extended">Extended</span>
+              <span class="chevron">▼</span>
+            </div>
+            <div class="body">
+              <div class="body-inner">
+                <ul>
+                  <li>Reads system-level architecture document first</li>
+                  <li>Identifies which service boundaries the PRD crosses</li>
+                  <li>Produces cross-repo plan artifact per repo</li>
+                  <li>Flags API/event/shared type changes → triggers Contract Agent</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div class="agent-card new">
+            <div class="header" tabindex="0">
+              <span class="emoji">📜</span>
+              <h4>Contract Agent</h4>
+              <span class="tag tag-new">New</span>
+              <span class="chevron">▼</span>
+            </div>
+            <div class="body">
+              <div class="body-inner">
+                <ul>
+                  <li>Invoked when PRD touches multiple repos or public interfaces</li>
+                  <li>Produces versioned contract artifact before implementation</li>
+                  <li>Checks backward compatibility; requires migration plan for breaking changes</li>
+                  <li>Does NOT write implementation code or review final diffs</li>
+                  <li>Output: interface diff, compatibility assessment, consumer list</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div class="agent-card">
+            <div class="header" tabindex="0">
+              <span class="emoji">⚙️</span>
+              <h4>Engineer</h4>
+              <span class="tag tag-extended">Extended</span>
+              <span class="chevron">▼</span>
+            </div>
+            <div class="body">
+              <div class="body-inner">
+                <ul>
+                  <li>One instance per repo, running in parallel</li>
+                  <li>Contract-dependent instances receive finalized artifact as context</li>
+                  <li>Independent repos start immediately without waiting</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div class="agent-card">
+            <div class="header" tabindex="0">
+              <span class="emoji">🔍</span>
+              <h4>Reviewer</h4>
+              <span class="tag tag-extended">Extended</span>
+              <span class="chevron">▼</span>
+            </div>
+            <div class="body">
+              <div class="body-inner">
+                <ul>
+                  <li>Receives all diffs across repos simultaneously</li>
+                  <li>Checks Service B usage matches Service A implementation</li>
+                  <li>Verifies all calling services are included in the plan</li>
+                  <li>Requires dependency graph for blast radius analysis</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Sequencing -->
+      <section id="sequencing">
+        <h3 class="section-title">Sequencing Rules</h3>
+        <p class="section-desc">
+          Select a scenario to see whether the Contract Agent runs and how Engineer agents are dispatched.
+        </p>
+
+        <div class="matrix-controls">
+          <button class="matrix-btn active" data-scenario="single-internal">Single-repo, no interface change</button>
+          <button class="matrix-btn" data-scenario="single-public">Single-repo, public interface change</button>
+          <button class="matrix-btn" data-scenario="multi-independent">Multi-repo, independent services</button>
+          <button class="matrix-btn" data-scenario="multi-shared">Multi-repo, shared contract</button>
+        </div>
+
+        <div class="matrix-result" id="matrix-result">
+          <div class="result-block">
+            <h5>Contract Agent</h5>
+            <div class="value no" id="result-contract">Skipped</div>
+          </div>
+          <div class="result-block">
+            <h5>Engineer Agents</h5>
+            <div class="value parallel" id="result-engineer">One agent, starts immediately</div>
+          </div>
+        </div>
+
+        <div class="callout" style="margin-top:2rem">
+          <h4>The Unsolved Problem</h4>
+          <p>
+            The system-level architecture document is only as good as its maintenance discipline.
+            The real answer is auto-generation from API specs, import graphs, and event subscriptions —
+            until that tooling exists, treat it as the best available context and have agents flag unknown service references.
+          </p>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    // Failure mode cards
+    const failureData = {
+      context: {
+        title: "Addressed by: CLAUDE.md + Plan Artifact",
+        body: "A well-maintained <strong>CLAUDE.md</strong> acts as a constitution all agents must read and cite. The <strong>plan artifact</strong> (files to change, LOC estimate, approach mapped to acceptance criteria) surfaces risks before any code is written."
+      },
+      scope: {
+        title: "Addressed by: Pre-flight Scope Check + Self-Critique",
+        body: "The plan artifact includes <strong>scope reasonableness</strong> checks (file/LOC thresholds). During implementation, the <strong>self-critique step</strong> asks whether each change is the minimum needed and stays within the PRD."
+      },
+      verify: {
+        title: "Addressed by: Post-implementation Mechanical Gates",
+        body: "<strong>Tests must pass</strong> before a PR opens — enforced mechanically, not by agent judgment. <strong>Diff coverage</strong>, static analysis, and linting form a non-negotiable quality floor."
+      },
+      review: {
+        title: "Addressed by: Adversarial Reviewer Agent",
+        body: "A <strong>separate agent instance</strong> with fresh context and no attachment to the implementation reads the PRD and diff against a structured checklist. Output is a review report attached to the PR for human reviewers."
+      }
+    };
+
+    document.querySelectorAll(".failure-card").forEach(card => {
+      card.addEventListener("click", () => {
+        document.querySelectorAll(".failure-card").forEach(c => c.classList.remove("active"));
+        card.classList.add("active");
+        const key = card.dataset.failure;
+        const data = failureData[key];
+        document.getElementById("failure-detail-title").textContent = data.title;
+        document.getElementById("failure-detail-body").innerHTML = data.body;
+        document.getElementById("failure-detail").classList.add("visible");
+      });
+    });
+
+    // Stage tabs
+    document.querySelectorAll(".stage-tab").forEach(tab => {
+      tab.addEventListener("click", () => {
+        const stage = tab.dataset.stage;
+        document.querySelectorAll(".stage-tab").forEach(t => {
+          t.classList.remove("active");
+          t.setAttribute("aria-selected", "false");
+        });
+        document.querySelectorAll(".stage-panel").forEach(p => p.classList.remove("active"));
+        tab.classList.add("active");
+        tab.setAttribute("aria-selected", "true");
+        document.querySelector(`[data-panel="${stage}"]`).classList.add("active");
+      });
+    });
+
+    // Review checklist
+    const checklist = document.getElementById("review-checklist");
+    const progressFill = document.getElementById("review-progress");
+    const progressCount = document.getElementById("review-count");
+    const total = checklist.querySelectorAll(".check-item").length;
+
+    checklist.addEventListener("click", e => {
+      const item = e.target.closest(".check-item");
+      if (!item) return;
+      item.classList.toggle("checked");
+      const checked = checklist.querySelectorAll(".check-item.checked").length;
+      progressFill.style.width = `${(checked / total) * 100}%`;
+      progressCount.textContent = `${checked} / ${total}`;
+    });
+
+    // Workflow nodes
+    const agentData = {
+      orchestrator: {
+        title: "Orchestrator (extended)",
+        desc: "Drives the full pipeline with two behavioral additions for multi-repo:",
+        list: [
+          "Parallel engineer dispatch — one Engineer agent per repo",
+          "Contract gate enforcement — blocks dependent engineers until contract is finalized"
+        ],
+        contract: false
+      },
+      "tech-lead": {
+        title: "Tech Lead (extended)",
+        desc: "Produces the cross-repo plan artifact that drives all downstream decisions:",
+        list: [
+          "Reads system-level architecture document (inventory, dependency graph, conventions)",
+          "Maps each acceptance criterion to a specific repo and expected files",
+          "Flags public API, event schema, or shared type changes"
+        ],
+        contract: false
+      },
+      contract: {
+        title: "Contract Agent (new)",
+        desc: "Owns the interface boundary. Locks contracts before any Engineer starts:",
+        list: [
+          "Reads plan + current interface definitions (OpenAPI, proto, shared types, events)",
+          "Produces structured diff of contract changes with backward compatibility assessment",
+          "Publishes finalized artifact; blocks dependent Engineer agents until done",
+          "Does NOT write implementation code or review final diffs"
+        ],
+        contract: true
+      },
+      engineer: {
+        title: "Engineer × N (extended)",
+        desc: "One instance per repo, running in parallel where possible:",
+        list: [
+          "Contract-dependent instances wait for and receive the contract artifact",
+          "Independent repos start immediately in parallel",
+          "Same single-repo responsibilities: implement, test, lint, commit"
+        ],
+        contract: false
+      },
+      reviewer: {
+        title: "Reviewer (extended)",
+        desc: "Cross-repo adversarial review — reads all diffs together:",
+        list: [
+          "Does Service B's usage match Service A's implementation?",
+          "Are all calling services included in the plan?",
+          "Backward compatible, or coordinated breaking change with migration plan?",
+          "Requires dependency graph — can't discover blast radius from diffs alone"
+        ],
+        contract: false
+      }
+    };
+
+    document.querySelectorAll(".wf-node").forEach(node => {
+      node.addEventListener("click", () => {
+        document.querySelectorAll(".wf-node").forEach(n => n.classList.remove("active"));
+        node.classList.add("active");
+        const key = node.dataset.agent;
+        const data = agentData[key];
+        const detail = document.getElementById("wf-detail");
+        detail.className = "wf-detail visible" + (data.contract ? " contract-detail" : "");
+        document.getElementById("wf-detail-title").textContent = data.title;
+        document.getElementById("wf-detail-desc").textContent = data.desc;
+        document.getElementById("wf-detail-list").innerHTML = data.list.map(l => `<li>${l}</li>`).join("");
+      });
+    });
+
+    // Agent card accordion
+    document.querySelectorAll(".agent-card .header").forEach(header => {
+      const toggle = () => {
+        const card = header.closest(".agent-card");
+        const wasOpen = card.classList.contains("open");
+        document.querySelectorAll(".agent-card").forEach(c => c.classList.remove("open"));
+        if (!wasOpen) card.classList.add("open");
+      };
+      header.addEventListener("click", toggle);
+      header.addEventListener("keydown", e => {
+        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggle(); }
+      });
+    });
+
+    // Sequencing matrix
+    const scenarios = {
+      "single-internal": { contract: "Skipped", contractClass: "no", engineer: "One agent, starts immediately", engineerClass: "parallel" },
+      "single-public": { contract: "Invoked", contractClass: "yes", engineer: "Starts after contract finalized", engineerClass: "wait" },
+      "multi-independent": { contract: "Skipped", contractClass: "no", engineer: "All agents start in parallel immediately", engineerClass: "parallel" },
+      "multi-shared": { contract: "Invoked", contractClass: "yes", engineer: "Contract-dependent agents wait; independent agents start immediately", engineerClass: "wait" }
+    };
+
+    document.querySelectorAll(".matrix-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".matrix-btn").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        const s = scenarios[btn.dataset.scenario];
+        const contractEl = document.getElementById("result-contract");
+        const engineerEl = document.getElementById("result-engineer");
+        contractEl.textContent = s.contract;
+        contractEl.className = "value " + s.contractClass;
+        engineerEl.textContent = s.engineer;
+        engineerEl.className = "value " + s.engineerClass;
+      });
+    });
+
+    // Scroll spy for nav
+    const sections = document.querySelectorAll("section, .hero");
+    const navLinks = document.querySelectorAll("nav a");
+
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const id = entry.target.id;
+          navLinks.forEach(link => {
+            link.classList.toggle("active", link.getAttribute("href") === `#${id}`);
+          });
+        }
+      });
+    }, { rootMargin: "-20% 0px -70% 0px" });
+
+    sections.forEach(s => { if (s.id) observer.observe(s); });
+  </script>
+</body>
+</html>
